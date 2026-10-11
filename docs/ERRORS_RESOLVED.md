@@ -316,3 +316,36 @@ reproduces CI exactly:
 
 That command is the regression check; re-run it if `passport.js`, `setup.js` or
 the vitest config changes.
+
+---
+
+## 6. A green Playwright suite that raced React's first paint
+
+**Symptom.** In CI only, one browser test failed; locally it always passed:
+
+```
+fleet page › seat counts are real (a Van seats 14, not 4)
+Expected substring: "10–14 passengers"
+Received string:    ""
+```
+
+Note the received value is the *empty string*, not a fleet missing its capacities.
+The assertion joins `allTextContents()` across every `div.panel`, so an empty
+result means the locator matched **zero** elements — the test read the page
+before React rendered it.
+
+**Cause.** `allTextContents()`, `textContent()` and `innerText()` do not
+auto-wait; only web-first assertions like `toHaveCount` retry. This one test
+called `page.goto('/fleet')` and read immediately. Its sibling directly above
+reads the same locator but is guarded by `await expect(cards).toHaveCount(9)`,
+which polls until the cards exist — that guard is the only reason it never
+flaked. On a fast laptop the read wins the race; on a CI runner it loses.
+
+An audit of the spec found this was the sole test combining a blind read with
+no wait, so the fix was local rather than a sweep.
+
+**Fix.** Wait for the nine cards before reading, matching the sibling test.
+
+**Guard.** `22 passed (25.7s)` locally against a real API. The race is timing
+dependent and will not reproduce reliably on a laptop — CI is the honest signal,
+so treat a red e2e here as real until proven otherwise.

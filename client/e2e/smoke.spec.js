@@ -61,7 +61,14 @@ test.describe('fleet page', () => {
 
   test('seat counts are real (a Van seats 14, not 4)', async ({ page }) => {
     await page.goto('/fleet');
-    const text = (await page.locator('div.panel').allTextContents()).join(' ');
+    const cards = page.locator('div.panel');
+    // Wait for the fleet to paint before reading. `allTextContents()` does not
+    // auto-wait, so reading straight after `goto` races React's first render and
+    // returns an empty array — which surfaced as `Received string: ""` on slower
+    // CI runners while passing on a fast laptop. The sibling test above already
+    // waits; this one has to as well.
+    await expect(cards).toHaveCount(9);
+    const text = (await cards.allTextContents()).join(' ');
     expect(text).toContain('10–14 passengers');
     expect(text).toContain('50–56 passengers');
   });

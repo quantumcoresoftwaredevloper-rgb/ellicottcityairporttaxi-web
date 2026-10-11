@@ -266,3 +266,53 @@ All run in CI on every push (`.github/workflows/ci.yml`).
   users, so this is cosmetic.
 - **The mobile app still lacks the dotted world-map texture** and `lib/phone.js`
   (it uses `data/site.js` instead). Intentional, not an oversight.
+
+---
+
+## 5. `TypeError: JwtStrategy requires a secret or key` — the API test suite only ever passed on a machine with a `.env`
+
+**Symptom.** `server: npm test` passes locally and dies in CI before any test
+runs, with the same trace four times over:
+
+```
+Error: TypeError: JwtStrategy requires a secret or key
+ ❯ new JwtStrategy node_modules/passport-jwt/lib/strategy.js:45:15
+ ❯ src/config/passport.js:40:3
+ ❯ src/controllers/authController.js:1:1
+ ❯ src/routes/auth.js:2:1
+Test Files  4 failed | 2 passed (6)
+```
+
+**Cause — an import-order trap, hidden by a gitignored file.**
+`src/config/passport.js` calls `dotenv.config()` and then builds
+`new JwtStrategy({ secretOrKey: process.env.JWT_ACCESS_SECRET })` at *module
+load*. `tests/setup.js` sets that variable inside `startTestServer()`, which
+runs from a `beforeAll` hook — after every module has already been evaluated.
+It also has a top-level `import app from '../src/index.js'`, so the strategy is
+constructed during import, before `startTestServer()` ever runs.
+
+The suite therefore depended on `server/.env` existing on disk. That file is
+gitignored, so it was never in the repo: on a developer machine dotenv supplied
+the secret first and everything passed; on CI there is no `.env`, so the
+strategy was built from `undefined` and threw. Green locally, red in CI, with
+no code difference between the two environments to explain it.
+
+This is the same class of defect as the driver-verification lockout — a
+green local suite that never exercised the state CI actually runs in.
+
+**Fix.** `tests/env.setup.js` sets `JWT_ACCESS_SECRET`, `CLIENT_ORIGIN` and
+`NODE_ENV` and imports nothing from `src/`. Registered in `vitest.config.js`
+as `setupFiles`, so it runs before any test file — and therefore before the
+app's module graph is evaluated. The `||=` in both files keeps the local `.env`
+authoritative; the two agree on a valid value anyway.
+
+**Guard.** Verified by hiding `.env` and unsetting the variable locally, which
+reproduces CI exactly:
+
+| | `.env` hidden |
+|---|---|
+| before | `4 failed \| 2 passed` — `JwtStrategy requires a secret or key` |
+| after | `6 passed (6)`, `44 passed (44)` |
+
+That command is the regression check; re-run it if `passport.js`, `setup.js` or
+the vitest config changes.

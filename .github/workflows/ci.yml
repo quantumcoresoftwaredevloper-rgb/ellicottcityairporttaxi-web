@@ -179,4 +179,15 @@ jobs:
             --exclude 'ecosystem.config.*' \
             server/ \
             /home/deploy/api/
-          sudo bash -c "cd /home/deploy/api && npm ci --omit=dev && pm2 restart ellicott-api"
+          # Delete-then-start rather than restart. `pm2 restart` replays the
+          # script path recorded when the process was first created, so if that
+          # file has been renamed or removed the restart cannot recover — it
+          # fails and leaves the API down (502 behind nginx). Starting fresh
+          # every deploy means the recorded path always matches what is on disk.
+          sudo bash -c 'cd /home/deploy/api \
+            && chmod +x scripts/start.sh \
+            && npm ci --omit=dev \
+            && pm2 delete ellicott-api >/dev/null 2>&1 || true; \
+            cd /home/deploy/api \
+            && pm2 start scripts/start.sh --name ellicott-api \
+            && pm2 save'

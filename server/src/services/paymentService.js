@@ -287,9 +287,16 @@ import RefundRequest from '../models/RefundRequest.js';
 
 export const requestRefund = async (userId, paymentId, reason) => {
   if (!reason || !reason.trim()) throw fail('Please provide a reason for refund', 400);
-  const payment = await Payment.findOne({ _id: paymentId, user: userId, status: 'succeeded' });
-  if (!payment) throw fail('No successful payment found', 404);
+  // Look the payment up by id and owner FIRST, then apply the rules. Filtering
+  // on `status: 'succeeded'` in the query made the cash guard below
+  // unreachable — a cash payment is stored with status 'cash', so the query
+  // never matched it and every cash refund answered "No successful payment
+  // found" instead of "Cash payments cannot be refunded". The outcome was still
+  // safe, but the message was wrong and the guard was dead code.
+  const payment = await Payment.findOne({ _id: paymentId, user: userId });
+  if (!payment) throw fail('Payment not found', 404);
   if (payment.provider === 'cash') throw fail('Cash payments cannot be refunded', 400);
+  if (payment.status !== 'succeeded') throw fail('No successful payment found', 404);
   const existing = await RefundRequest.findOne({ payment: paymentId, status: 'pending' });
   if (existing) throw fail('Refund already requested and pending admin review', 409);
   const alreadyRefunded = await RefundRequest.findOne({ payment: paymentId, status: 'approved' });

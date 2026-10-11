@@ -7,7 +7,7 @@ on:
 jobs:
   deploy-frontend:
     name: Deploy frontend to VPS
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     needs: gates
     if: github.ref == 'refs/heads/main'
     steps:
@@ -24,20 +24,17 @@ jobs:
         env:
           VITE_API_URL: https://api.ellicottcityairporttaxi.com
         run: npm run build
-      - uses: webfactory/ssh-agent@v0.9.0
-        with:
-          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
       - name: Deploy frontend
         run: |
-          rsync -az --delete \
+          sudo rsync -az --delete \
             --exclude '.well-known' \
             --exclude 'googlebffcbf76070b0706.html' \
             client/dist/ \
-            root@162.35.185.229:/var/www/ellicottcityairporttaxi.com/
+            /var/www/ellicottcityairporttaxi.com/
 
   deploy-backend:
     name: Deploy backend to VPS
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     needs: server-tests
     if: github.ref == 'refs/heads/main'
     steps:
@@ -49,15 +46,12 @@ jobs:
           cache-dependency-path: server/package-lock.json
       - run: npm ci
         working-directory: server
-      - uses: webfactory/ssh-agent@v0.9.0
-        with:
-          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
       - name: Deploy backend
         run: |
-          rsync -az --delete \
+          sudo rsync -az --delete \
             --exclude 'node_modules' \
             --exclude '.env' \
             --exclude 'ecosystem.config.*' \
             server/ \
-            root@162.35.185.229:/home/deploy/api/
-          ssh root@162.35.185.229 "cd /home/deploy/api && npm ci --omit=dev && pm2 restart ellicott-api"
+            /home/deploy/api/
+          sudo bash -c "cd /home/deploy/api && npm ci --omit=dev && pm2 restart ellicott-api"

@@ -1,0 +1,81 @@
+# Interserver / Apache config for the built React SPA.
+#
+# This file is the shared-hosting equivalent of client/vercel.json. It does two
+# jobs: the SPA history fallback (so /fleet and /admin/content deep links load
+# index.html instead of 404) and long-lived caching for hashed bundles.
+#
+# UPLOAD NOTE: cPanel's File Manager will not show or upload a file whose name
+# starts with a dot. Either rename it to `htaccess.txt`, upload, then rename it
+# back to `.htaccess` in File Manager — or upload it over SSH/FTP, which does
+# preserve dotfiles.
+
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+
+  # Force HTTPS. Keep this OFF until the certificate is issued, or you will lock
+  # yourself out of the site. Interserver issues a free Let's Encrypt cert from
+  # cPanel -> Security -> SSL/TLS Status; enable it, then re-enable this block.
+  # RewriteCond %{HTTPS} !=on
+  # RewriteCond %{HTTP:X-Forwarded-Proto} !https
+  # RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+  # --- SPA history fallback -------------------------------------------------
+  # Real files and directories are served as-is; everything else is the app.
+  # Without this, a hard refresh or a shared deep link returns 404.
+  RewriteCond %{REQUEST_FILENAME} -f [OR]
+  RewriteCond %{REQUEST_FILENAME} -d
+  RewriteRule ^ - [L]
+  RewriteRule ^ /index.html [L]
+</IfModule>
+
+# Do not advertise the directory listing of a missing path. Only safe when the
+# host permits Options in .htaccess; an unpermitted directive is a 500.
+<IfModule mod_autoindex.c>
+  Options -Indexes
+</IfModule>
+
+<IfModule mod_deflate.c>
+  AddOutputFilterByType DEFLATE text/html text/css text/javascript application/javascript application/json image/svg+xml application/manifest+json
+</IfModule>
+
+<IfModule mod_expires.c>
+  ExpiresActive On
+
+  # Vite emits content-hashed filenames, so these can be cached forever.
+  ExpiresDefault "access plus 1 month"
+  ExpiresByType text/css                 "access plus 1 year"
+  ExpiresByType application/javascript   "access plus 1 year"
+  ExpiresByType image/svg+xml            "access plus 1 year"
+  ExpiresByType font/woff2               "access plus 1 year"
+  ExpiresByType image/png                "access plus 1 year"
+  ExpiresByType image/jpeg               "access plus 1 year"
+  ExpiresByType image/webp               "access plus 1 year"
+
+  # index.html and the service worker must never be cached, or users keep
+  # loading an old bundle (and old web-push code) after a deploy.
+  ExpiresByType text/html                "access plus 0 seconds"
+</IfModule>
+
+<IfModule mod_headers.c>
+  <Files "sw.js">
+    Header set Cache-Control "no-cache, no-store, must-revalidate"
+  </Files>
+
+  <FilesMatch "\.(js|css|woff2|png|jpe?g|webp|svg|ico)$">
+    Header set Cache-Control "public, max-age=31536000, immutable"
+  </FilesMatch>
+</IfModule>
+
+# Send the headers the app expects (e.g. Stripe.js, Google Fonts).
+<IfModule mod_headers.c>
+  Header always set X-Content-Type-Options "nosniff"
+  Header always set Referrer-Policy "strict-origin-when-cross-origin"
+</IfModule>
+
+# The 3D taxi model and hero imagery live in client/public — keep them
+# readable rather than executed.
+<IfModule mod_headers.c>
+  <FilesMatch "\.(glb|gltf)$">
+    Header set Content-Type "model/gltf-binary"
+  </FilesMatch>
+</IfModule>

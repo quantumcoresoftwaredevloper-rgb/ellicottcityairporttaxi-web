@@ -1,0 +1,83 @@
+# Render blueprint for the Ellicott City Airport Taxi API.
+#
+# The CLIENT deploys to Vercel (see client/vercel.json) and the API deploys here.
+# On Vercel set the project Root Directory to `client` and add:
+#     VITE_API_URL=https://<this service>.onrender.com
+# VITE_* values are inlined at BUILD time, so changing the API URL requires a
+# client rebuild, not just a restart.
+#
+# Deploy: Render Dashboard -> New -> Blueprint -> pick this repo, or
+# `render blueprint launch` once you have the CLI linked.
+#
+# Every `sync: false` variable must be supplied as a secret in the dashboard.
+# The server refuses to boot in production without a real JWT_ACCESS_SECRET.
+
+services:
+  - type: web
+    name: ellicott-taxi-api
+    runtime: node
+    plan: starter
+    rootDir: server
+    buildCommand: npm ci
+    startCommand: npm start
+    healthCheckPath: /api/health
+    # Free instances sleep after inactivity; the Stripe/CORS keys are optional.
+    autoDeploy: true
+    envVars:
+      - key: NODE_ENV
+        value: production
+      # Required. The database name must stay `ellicottaxi` — never point two
+      # apps at one database.
+      - key: MONGO_URI
+        sync: false
+      # Required. >=32 random chars: `openssl rand -hex 32`. The server throws
+      # at boot if this is a placeholder or too short.
+      - key: JWT_ACCESS_SECRET
+        sync: false
+      # Required. Comma-separated; used for verification + password-reset links.
+      - key: CLIENT_ORIGIN
+        sync: false
+      # Required behind a proxy so req.ip and the rate limits see the real IP.
+      - key: TRUST_PROXY
+        value: "true"
+      # Optional. Without it each instance keeps its own in-memory rate-limit
+      # counters; with it the limits are enforced across all instances.
+      - key: REDIS_URL
+        sync: false
+      # Optional integrations — leave unset and those features degrade
+      # gracefully (sandbox card simulator, console email, no web push).
+      - key: STRIPE_SECRET_KEY
+        sync: false
+      - key: GOOGLE_CLIENT_ID
+        sync: false
+      - key: GOOGLE_CLIENT_SECRET
+        sync: false
+      - key: FACEBOOK_APP_ID
+        sync: false
+      - key: FACEBOOK_APP_SECRET
+        sync: false
+      - key: SMTP_HOST
+        sync: false
+      - key: SMTP_PORT
+        sync: false
+      - key: SMTP_USER
+        sync: false
+      - key: SMTP_PASS
+        sync: false
+      - key: TWILIO_ACCOUNT_SID
+        sync: false
+      - key: TWILIO_AUTH_TOKEN
+        sync: false
+      - key: TWILIO_FROM_NUMBER
+        sync: false
+      - key: VAPID_PUBLIC_KEY
+        sync: false
+      - key: VAPID_PRIVATE_KEY
+        sync: false
+      - key: VAPID_SUBJECT
+        sync: false
+      # NEVER set EXPOSE_DEV_TOKENS in production. It returns live
+      # password-reset links and the SMS fallback code in API responses, and
+      # the server refuses to boot if it is 'true'.
+      - key: EXPOSE_DEV_TOKENS
+        value: "false"

@@ -1,0 +1,7 @@
+node_modules
+dist
+# build artifact from scripts/build-interserver.sh (large, regenerated on demand)
+dist-interserver.zip
+.env
+*.log
+.DS_Store

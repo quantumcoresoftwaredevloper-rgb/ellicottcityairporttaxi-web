@@ -1,0 +1,141 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  # The static gates: colours, catalog drift, lint, types.
+  # These are the ones that caught real production bugs, and they need no
+  # database, so they run first and fail fast.
+  gates:
+    name: Static gates
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: |
+            client/package-lock.json
+            server/package-lock.json
+      - run: npm ci
+        working-directory: client
+      - run: npm ci
+        working-directory: server
+      - name: contrast gate
+        run: npm run check:contrast
+        working-directory: client
+      - name: catalog fallback matches the server
+        run: npm run check:catalog
+        working-directory: client
+      - name: lint
+        run: npm run lint
+        working-directory: client
+      - name: build
+        run: npm run build
+        working-directory: client
+      - name: lint (server)
+        run: npm run lint
+        working-directory: server
+
+  # API integration tests against a real in-memory MongoDB. No service
+  # container needed — mongodb-memory-server boots its own mongod.
+  server-tests:
+    name: API tests
+    runs-on: ubuntu-latest
+    needs: gates
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: server/package-lock.json
+      - run: npm ci
+        working-directory: server
+      - name: vitest
+        run: npm test
+        working-directory: server
+
+  client-tests:
+    name: Client unit tests
+    runs-on: ubuntu-latest
+    needs: gates
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: client/package-lock.json
+      - run: npm ci
+        working-directory: client
+      - run: npm test
+        working-directory: client
+
+  # The web <-> API seam. Starts the real API (local mongod via service
+  # container) and the real dev server, then drives the browser.
+  e2e:
+    name: Browser smoke tests
+    runs-on: ubuntu-latest
+    needs: gates
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: |
+            client/package-lock.json
+            server/package-lock.json
+      - run: npm ci
+        working-directory: client
+      - run: npm ci
+        working-directory: server
+      - name: Install browser
+        run: npx playwright install --with-deps chromium
+        working-directory: client
+      - name: Start MongoDB
+        run: |
+          docker run -d --name mongo -p 27017:27017 mongo:7
+      - name: Seed
+        run: npm run seed
+        working-directory: server
+        env:
+          MONGO_URI: mongodb://127.0.0.1:27017/ellicottaxi_test
+          JWT_ACCESS_SECRET: ci-secret-that-is-at-least-32-characters-long
+      - name: Start API
+        run: npm start &
+        working-directory: server
+        env:
+          MONGO_URI: mongodb://127.0.0.1:27017/ellicottaxi_test
+          JWT_ACCESS_SECRET: ci-secret-that-is-at-least-32-characters-long
+          CLIENT_ORIGIN: http://localhost:5173
+          # NOT production: assertEnv() refuses a localhost MONGO_URI in production,
+          # and CI runs a local mongod. These tests check the API seam. The
+          # production boot guard is covered by tests/env.test.js instead.
+          NODE_ENV: development
+      - name: Wait for the API
+        run: |
+          for i in $(seq 1 30); do
+            if curl -sf http://localhost:5001/api/health > /dev/null; then echo "api up"; exit 0; fi
+            sleep 2
+          done
+          echo "api never came up"; exit 1
+      - name: Browser smoke tests
+        run: npm run test:e2e
+        working-directory: client
+        env:
+          VITE_API_URL: ''
+      - name: Upload failure artefacts
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: |
+            client/playwright-report
+            client/test-results
+          retention-days: 7

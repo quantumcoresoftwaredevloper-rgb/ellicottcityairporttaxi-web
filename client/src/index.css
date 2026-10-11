@@ -1,0 +1,593 @@
+@import 'tailwindcss';
+@custom-variant dark (&:where(.dark, .dark *));
+
+/*
+ * RideTaxi Design Tokens
+ * LEAD = Cargo charcoal #313131 (near-black). ACCENT = Cargo orange #FF6900.
+ * RED IS NO LONGER A BRAND COLOR — it survives only as `signal-*`, a
+ * functional red for things that mean "live / active / failed" (the in-progress
+ * ride, a failed payment, map pins, the route line). Branding, bands, CTAs and
+ * links are charcoal + orange.
+ *
+ * Derived from the "Cargo" WordPress theme (Bold Themes), re-tuned per role so
+ * every combination clears WCAG AA — Cargo's raw #00D084 (1.9:1 on a light
+ * tint), #727272 (4.49:1) and #FF6900 (2.89:1 on white) all fail as text.
+ * Run `npm run check:contrast` before changing any value here; it asserts every
+ * combination the UI actually renders and exits non-zero on a regression.
+ *
+ * Keep token NAMES stable (brand-*, accent-*, gold-*, success-*, signal-*) so
+ * component classes never change. You change VALUES, never class names.
+ */
+@theme {
+  /* Cargo uses TWO families: Raleway for headings + body (170 elements) and
+     Lato for menus, nav and small UI (168 elements). --font-ui mirrors that. */
+  --font-sans: 'Raleway', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --font-display: 'Raleway', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --font-ui: 'Lato', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+
+  /* brand-* = MAJOR — Cargo BLUE #0B60A9. Extracted from /transport-company/:
+     96 text uses, 16 backgrounds, 9 borders, plus the deep #084274 for bands.
+     This is the colour the theme is actually built on. */
+  --color-brand-50: #f2f7fc;
+  --color-brand-100: #e3eef8;
+  --color-brand-200: #c2d9ec;
+  --color-brand-300: #8fbcdd;
+  --color-brand-400: #2f87bd;
+  --color-brand-500: #0b6ba8;
+  --color-brand-600: #0b60a9;
+  --color-brand-700: #08487e;
+  --color-brand-800: #084274;
+  --color-brand-900: #063050;
+  --color-brand-950: #04203a;
+
+  /* signal-* = the ONLY red in the system. Functional meaning, never branding:
+     in-progress ride, failed payment, weak password, live map pins, route. */
+  --color-signal-50: #fdeeee;
+  --color-signal-100: #fbdada;
+  --color-signal-200: #f5b3b3;
+  --color-signal-300: #ee8a8a;
+  --color-signal-400: #e05050;
+  --color-signal-500: #d62f2f;
+  --color-signal-600: #c22020;
+  --color-signal-700: #a81c1c;
+  --color-signal-800: #8a1a1a;
+  --color-signal-900: #6b1515;
+  --color-signal-950: #451010;
+
+  /* accent-* = Cargo's neutral family — borders #CCCCCC, muted #666, and the
+     charcoal section band #313131. */
+  --color-accent-50: #f5f5f5;
+  --color-accent-100: #ededed;
+  --color-accent-200: #cccccc;
+  --color-accent-300: #b4b4b4;
+  --color-accent-400: #999999;
+  --color-accent-500: #6b6b6b;
+  --color-accent-600: #5b5b5b;
+  --color-accent-700: #444444;
+  --color-accent-800: #313131;
+  --color-accent-900: #1a1d21;
+
+  /* gold-* : legacy token name, now Cargo's LIGHT BLUE accent ramp (the
+     #2995F1 / #8fbcdd family). It carries the accent words and live dots that
+     sit ON the deep blue band, and the "waiting/pending" status chips. */
+  --color-gold-50: #eef5fc;
+  --color-gold-100: #dceaf8;
+  --color-gold-200: #bcd7f0;
+  --color-gold-300: #8fbcdd;
+  --color-gold-400: #a5cce6;
+  --color-gold-500: #3d8fc9;
+  --color-gold-600: #0b6ba8;
+  --color-gold-700: #08487e;
+  --color-gold-800: #063a5e;
+  --color-gold-900: #04263f;
+  --color-gold-950: #021829;
+
+  /* success-* = Cargo green (#00d084), darkened for text roles so status
+     pills clear AA on their own tints. Also the single source of truth for
+     the map pickup pin, so the app never mixes greens. */
+  --color-success-50: #e6fbf3;
+  --color-success-100: #c2f5e1;
+  --color-success-200: #86eac5;
+  --color-success-300: #4ddca8;
+  --color-success-400: #1fd08e;
+  --color-success-500: #00d084;
+  --color-success-600: #008252;
+  --color-success-700: #006b43;
+  --color-success-800: #045233;
+  --color-success-900: #032b21;
+  --color-success-950: #01170f;
+
+  --color-surface: #ffffff;
+  --color-ink: #333333;
+  --color-muted: #61656b;
+  --color-paper: #f2f2f2;
+}
+
+html.dark {
+  --color-paper: #1a1a1a;
+  --color-ink: #f7f7f8;
+  --color-muted: #9a9aa2;
+  --color-surface: #2f2f2f;
+  /* The lead charcoal now forms full-bleed bands. In dark mode the deep end
+     would sit on top of the near-black page, so lift the band steps to read
+     as elevated charcoal against it. */
+  --color-brand-800: #0e5189;
+  --color-brand-900: #0a3f6b;
+  --color-brand-950: #07304f;
+}
+.dark body {
+  background: var(--color-paper);
+  color: var(--color-ink);
+}
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  font-family: var(--font-sans);
+  /* Cargo sets 500 as the default body weight. */
+  font-weight: 500;
+  color: var(--color-ink);
+  background: var(--color-paper);
+  -webkit-font-smoothing: antialiased;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--font-display);
+  /* Cargo sets ~1px tracking on its large headings. Keep the slight negative
+     pull for small headings, and open up the big ones. */
+  letter-spacing: -0.02em;
+}
+
+h1,
+h2 {
+  letter-spacing: 0.01em;
+}
+
+/* ---- Brand gradient helpers ---- */
+/* Cargo mixes two dark bands: the blue #084274 family and a charcoal #313131
+   section band. `bg-brand-gradient` is the blue one; this is the charcoal. */
+.bg-band-charcoal {
+  background: linear-gradient(150deg, var(--color-accent-800) 0%, var(--color-accent-900) 100%);
+}
+
+/* Cargo's light section band (#EDEDED). */
+.bg-band-light {
+  background: var(--color-accent-100);
+}
+/* The band is the lead: Cargo charcoal. A charcoal CTA on a charcoal band
+   would vanish, so CTAs use the orange accent instead. */
+.bg-brand-gradient {
+  background:
+    linear-gradient(150deg, var(--color-brand-800) 0%, var(--color-brand-900) 55%, var(--color-brand-950) 100%);
+}
+
+.bg-brand-gradient-soft {
+  background: linear-gradient(135deg, #ffffff 0%, #f7f8f9 55%, #eef0f2 100%);
+}
+
+.btn-brand-gradient {
+  background: linear-gradient(180deg, var(--color-brand-500) 0%, var(--color-brand-700) 100%);
+  box-shadow: 0 1px 2px rgba(4, 32, 58, 0.28), 0 10px 26px -12px rgba(8, 66, 116, 0.5);
+}
+.btn-brand-gradient:hover {
+  background: linear-gradient(180deg, var(--color-brand-400) 0%, var(--color-brand-600) 100%);
+}
+
+.text-brand-gradient {
+  background: linear-gradient(120deg, var(--color-brand-600), var(--color-brand-800));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* ---- Inputs: pill shape (Uber-style touch targets) ---- */
+.input-pill {
+  border-radius: 9999px;
+}
+
+/* ---- One card surface for every page (light + dark) ---- */
+/*
+ * Dotted texture — adapted from the "Cargo" WordPress theme, which uses a
+ * 2500x1438 PNG of black dots to form a dotted world map at 8% opacity.
+ *
+ * Reproduced in CSS rather than shipped as an image: a world map cannot be
+ * drawn with a gradient, but the *texture* is a plain dot grid, and CSS is
+ * ~200 bytes, crisp at any zoom, needs no request, and cannot go blurry the
+ * way a scaled background image does.
+ *
+ * Two deliberate deviations from the reference, both for correctness:
+ *   1. Opacity 6%, not 8%. At 8% the darkest dot pixel drops `text-muted`
+ *      body copy to 3.99:1 — below WCAG AA. 6% is the strongest value that
+ *      keeps every text role legal on every surface it can land on. This is
+ *      asserted by scripts/check-contrast.mjs.
+ *   2. Dot radius 3px (6px across) instead of a scaled 18px source dot, at
+ *      Cargo's exact 22px pitch. Chunkier dots read as a polka-dot pattern
+ *      rather than a refined field.
+ *
+ * On a dark band a black dot is invisible, so the ink is a variable and dark
+ * mode swaps it for a light one. That keeps the utility safe to use anywhere
+ * instead of only on light sections.
+ */
+:root {
+  /* The dotted WORLD MAP, generated by scripts/build-dot-world-map.mjs into
+     src/assets/dot-world-map.svg. It is drawn as <circle> dots on an
+     equirectangular grid with `preserveAspectRatio="xMidYMid slice"`, so the
+     dots stay circular at any band size (a "none" ratio stretches them into
+     ellipses).
+
+     TWO variants are generated, and the ink is BAKED into each one rather than
+     left as `currentColor`: `color` is also the text colour, so a
+     `text-white`/`text-ink` utility on a section silently overrides a
+     `currentColor` ink and paints the dots solid.
+
+     Cargo uses a 312 KB PNG of black dots. This is an equivalent texture built
+     from hand-authored lon/lat boxes, so it carries no third-party artwork and
+     is re-generatable if the coastline needs adjusting. */
+  --dot-map: url('/assets/dot-world-map.svg');
+  --dot-map-band: url('/assets/dot-world-map-band.svg');
+
+  /* Two inks, because a dark dot is invisible on a dark surface. */
+  /* Alpha is baked into each SVG (6% ink on light, 4% on the blue bands). A
+     light dot LIGHTENS a band, and 4% is the strongest value that keeps the
+     gold-300 accent legal — see `npm run check:contrast`. */
+}
+
+html.dark {
+  --dot-ink: rgb(247 248 250 / 0.07);
+}
+
+@layer components {
+  /* Dots over whatever surface the element already has. */
+  .bg-dots {
+    background-image: var(--dot-map);
+    background-size: cover;
+    background-repeat: no-repeat;
+  }
+
+  /* Dots composited WITH the soft wash. `background-image` replaces any value
+     already set, so a gradient on the same element would be wiped out unless
+     the dot layer is declared alongside it here. */
+  .bg-dots-soft {
+    background-image: var(--dot-map),
+      linear-gradient(135deg, #ffffff 0%, #f7f8f9 55%, #eef0f2 100%);
+    background-size: cover, 100% 100%;
+    background-repeat: no-repeat, no-repeat;
+  }
+
+  /* Dots composited WITH the blue band gradient. Declared as its own class
+     rather than layered on .bg-brand-gradient because that uses the
+     `background` shorthand, which sets background-image — adding a second
+     background-image would wipe the gradient out. */
+  .bg-dots-brand {
+    background-image: var(--dot-map-band),
+      linear-gradient(
+        150deg,
+        var(--color-brand-800) 0%,
+        var(--color-brand-900) 55%,
+        var(--color-brand-950) 100%
+      );
+    background-size: cover, 100% 100%;
+    background-repeat: no-repeat, no-repeat;
+  }
+
+  /* The quick-quote distance slider. `appearance: none` is required before the
+     thumb can be styled in WebKit and Firefox. */
+  .quote-range::-webkit-slider-thumb {
+    appearance: none;
+    height: 1.25rem;
+    width: 1.25rem;
+    border-radius: 9999px;
+    background: var(--color-brand-500);
+    border: 2px solid #ffffff;
+    box-shadow: 0 1px 4px rgb(0 0 0 / 0.4);
+    cursor: pointer;
+  }
+
+  .quote-range::-moz-range-thumb {
+    height: 1.25rem;
+    width: 1.25rem;
+    border: 2px solid #ffffff;
+    border-radius: 9999px;
+    background: var(--color-brand-500);
+    box-shadow: 0 1px 4px rgb(0 0 0 / 0.4);
+    cursor: pointer;
+  }
+
+  .quote-range:focus-visible::-webkit-slider-thumb {
+    outline: 2px solid var(--color-gold-300);
+    outline-offset: 2px;
+  }
+
+  .quote-range:focus-visible::-moz-range-thumb {
+    outline: 2px solid var(--color-gold-300);
+    outline-offset: 2px;
+  }
+
+  /* Phone numbers. Deliberately NOT the brand face. Raleway's geometric digits
+     read as "wavy" at UI sizes, and a phone number is a value to read and tap,
+     not a display element — so it is set in the plain neutral system stack, at
+     regular weight, with lining tabular figures so the digits sit on one flat
+     baseline. Never set it in `font-display`, extra-bold, or a serif. */
+  .phone-number {
+    font-family:
+      -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue',
+      Arial, sans-serif;
+    font-weight: 500;
+    letter-spacing: normal;
+    font-variant-numeric: lining-nums tabular-nums;
+    text-transform: none;
+    font-feature-settings: 'tnum' 1, 'lnum' 1;
+  }
+
+  /* Opt-in parallax. Cargo attaches the background with `fixed`, which drifts
+     against the scroll. Kept separate and off by default: `background-attachment:
+     fixed` is unreliable on iOS Safari and is a known scroll-performance cost. */
+  .bg-dots-parallax {
+    background-image: var(--dot-map);
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+  }
+
+  .card {
+    border-radius: 1rem;
+    border: 1px solid var(--color-accent-200);
+    background-color: var(--color-surface);
+    padding: 1.25rem;
+    box-shadow:
+      0 1px 2px rgba(26, 29, 33, 0.04),
+      0 1px 3px rgba(26, 29, 33, 0.03),
+      0 12px 32px -20px rgba(26, 29, 33, 0.14);
+    transition:
+      transform 0.35s cubic-bezier(0.22, 1, 0.36, 1),
+      box-shadow 0.35s ease;
+  }
+  .card:hover {
+    transform: translateY(-4px);
+    box-shadow:
+      0 2px 4px rgba(26, 29, 33, 0.05),
+      0 30px 56px -24px rgba(26, 29, 33, 0.18);
+  }
+  .dark .card {
+    border-color: var(--color-accent-800);
+    background-color: var(--color-accent-900);
+  }
+  /* .panel = same surface, no padding and no hover lift (tables, dropdowns,
+     map frames — children own their spacing) */
+  .panel {
+    border-radius: 1rem;
+    border: 1px solid var(--color-accent-200);
+    background-color: var(--color-surface);
+    box-shadow:
+      0 1px 2px rgba(26, 29, 33, 0.04),
+      0 1px 3px rgba(26, 29, 33, 0.03),
+      0 12px 32px -20px rgba(26, 29, 33, 0.14);
+  }
+  .dark .panel {
+    border-color: var(--color-accent-800);
+    background-color: var(--color-accent-900);
+  }
+}
+
+/* ---- Leaflet overrides so the map matches the palette ---- */
+.leaflet-container {
+  font-family: inherit;
+}
+
+.leaflet-control-zoom a {
+  color: var(--color-ink);
+}
+
+/* Map pins -------------------------------------------------------------- */
+.map-pin {
+  position: relative;
+  display: grid;
+  width: 30px;
+  height: 30px;
+  place-items: center;
+  border-radius: 50% 50% 50% 0;
+  transform: rotate(-45deg);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.28);
+  border: 2px solid #ffffff;
+}
+
+.map-pin span {
+  transform: rotate(45deg);
+  font-size: 12px;
+  line-height: 1;
+  color: #fff;
+}
+
+.map-pin-pickup {
+  background: var(--color-signal-600); /* red = pickup (functional signal) */
+}
+
+/* Circular green start marker (pickup) */
+.map-pin-start {
+  display: grid;
+  width: 22px;
+  height: 22px;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--color-success-500);
+  border: 3px solid #ffffff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.map-pin-start span {
+  font-size: 11px;
+  line-height: 1;
+  color: #fff;
+}
+
+.map-pin-dropoff {
+  background: var(--color-signal-700); /* red = destination (functional signal) */
+}
+
+.map-pin-driver {
+  background: var(--color-signal-600);
+  animation: pin-pulse 1.6s infinite;
+}
+
+.map-pin-driver span {
+  font-size: 14px;
+}
+
+/* Live passenger marker (blue) on the driver's ride map */
+.map-pin-passenger {
+  background: #0b60a9;
+  border: 2px solid #ffffff;
+}
+
+.map-pin-passenger span {
+  font-size: 14px;
+}
+
+/* "You are here" blue dot on the booking map */
+.map-pin-user {
+  position: relative;
+  display: grid;
+  width: 20px;
+  height: 20px;
+  place-items: center;
+  border-radius: 50%;
+  background: #0b60a9;
+  border: 3px solid #ffffff;
+  box-shadow: 0 0 0 4px rgba(11, 96, 169, 0.22), 0 2px 10px rgba(0, 0, 0, 0.35);
+}
+
+.map-pin-user::after {
+  content: '';
+  position: absolute;
+  inset: -7px;
+  border-radius: 50%;
+  border: 2px solid rgba(11, 96, 169, 0.45);
+  animation: user-pulse 2s ease-out infinite;
+}
+
+@keyframes user-pulse {
+  0% {
+    transform: scale(0.55);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1.5);
+    opacity: 0;
+  }
+}
+
+/* Nearby idle vehicles on the booking map */
+.map-pin-vehicle {
+  background: #ffffff;
+  border: 2px solid var(--color-brand-700);
+  width: 32px;
+  height: 32px;
+}
+
+.map-pin-vehicle span {
+  font-size: 15px;
+  color: var(--color-brand-700);
+}
+
+/* Lucide SVG icons inside map pins */
+.map-pin span svg,
+.map-pin-vehicle span svg {
+  display: block;
+  width: auto;
+  height: 1em;
+}
+
+@keyframes pin-pulse {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(255, 117, 26, 0.45), 0 2px 8px rgba(0, 0, 0, 0.28);
+  }
+  50% {
+    box-shadow: 0 0 0 12px rgba(255, 117, 26, 0), 0 2px 8px rgba(0, 0, 0, 0.28);
+  }
+}
+
+/* Subtle fade-in for cards */
+@keyframes rise-in {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.rise-in {
+  animation: rise-in 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* Animated cards: layered depth at rest, gentle float on hover */
+.card-lift {
+  box-shadow:
+    0 1px 2px rgba(26, 29, 33, 0.05),
+    0 10px 30px -18px rgba(26, 29, 33, 0.10);
+  transition:
+    transform 0.35s cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 0.35s ease;
+}
+.card-lift:hover {
+  transform: translateY(-6px);
+  box-shadow:
+    0 2px 4px rgba(26, 29, 33, 0.06),
+    0 28px 52px -22px rgba(26, 29, 33, 0.18);
+}
+
+/* Scroll-reveal (paired with <Reveal>) */
+.reveal {
+  opacity: 0;
+  transform: translateY(18px);
+  transition:
+    opacity 0.6s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.reveal.is-in {
+  opacity: 1;
+  transform: none;
+}
+
+/* Image zoom on hover for media cards */
+.img-zoom {
+  overflow: hidden;
+}
+.img-zoom img {
+  transition: transform 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.img-zoom:hover img {
+  transform: scale(1.05);
+}
+
+/* ---- 3D taxi hero ---- */
+.taxi-fade-in {
+  animation: taxi-fade 1.3s ease-out 0.15s both;
+}
+
+@keyframes taxi-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .taxi-fade-in {
+    animation: none;
+    opacity: 1;
+  }
+}

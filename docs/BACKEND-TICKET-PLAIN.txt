@@ -1,0 +1,60 @@
+Hi Binil,
+
+The frontend is now live at https://ellicottcityairporttaxi.com
+All 124 files return 200, the HTTP 500 is resolved, and the site works. Thank
+you for the document root fix.
+
+I now need to deploy the backend API. It is a taxi booking platform with live
+driver tracking. The frontend is already built to call the API on the same
+domain at /api, so no cross-origin setup is needed.
+
+STACK
+
+  Node.js 20 or 22 (will not run on 18)
+  Express 5, Socket.io 4 for live driver location
+  MongoDB via Mongoose 8
+  Passport.js auth, Stripe payments, Nodemailer, Twilio
+
+  Start command   npm start
+  Default port    5001
+  Install size    about 278 MB
+
+Note: the site .htaccess currently rewrites every unknown path to index.html, so
+it will need an exception for /api and /socket.io once the API is installed.
+
+MY QUESTIONS
+
+1. Is there a "Setup Node.js App" selector on this account? If so, which
+   versions, can it run npm start, does it stay running when idle, and does it
+   support WebSockets?
+
+2. Is MongoDB available? Shared hosting usually does not provide it, and the
+   application cannot run without a database. I understand you also offer VPS
+   plans, and I am happy to use one so the API, database and website are all
+   with one provider.
+
+3. If Node.js is not available here, can the website stay on this account while
+   only the API moves to a VPS, and can my domain point DNS elsewhere?
+
+4. Live tracking streams over WebSockets. If idle apps are stopped, tracking
+   drops mid-ride. What is the idle timeout on this plan?
+
+ENVIRONMENT
+
+I will supply all values myself. The app refuses to start in production without
+MONGO_URI, a 32+ character JWT_ACCESS_SECRET, CLIENT_ORIGIN and TRUST_PROXY.
+I will also need to run a one-time seed command to create the admin account.
+
+Once you confirm the hosting option I will upload the package, install it, add
+the .htaccess exception, seed the database and test the full flow.
+
+SECURITY
+
+The compromised WordPress install I removed had backdoors in the website folder,
+but identical files were also in the account home directory next to get-pip.py,
+suggesting access beyond one site. This account serves about 40 domains. Could
+you check the others for the same files and advise if my cPanel credentials
+should be treated as compromised? I am rotating them regardless.
+
+Kind regards,
+Elliott City Airport Taxi

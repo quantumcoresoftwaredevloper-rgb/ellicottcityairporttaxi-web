@@ -21,3 +21,21 @@ process.env.CLIENT_ORIGIN ||= 'http://localhost:5173';
 // Tests exercise development boot paths; production guards are covered by
 // tests/env.test.js rather than by the boot itself.
 process.env.NODE_ENV ||= 'development';
+
+// Lift the rate limiters for the test run. The suite logs in once per fixture
+// user, so a full pass makes well over 100 login attempts from 127.0.0.1 — past
+// the 100/15min login cap that applies whenever RATE_LIMIT_LOGIN is unset.
+// Once tripped, `login` answers 429 with no `tokens`, and the helper passes
+// `undefined` into `bearer()`, which then throws
+// "Cannot read properties of undefined (reading 'accessToken')" in whatever test
+// happens to run next. It never failed locally only because the gitignored
+// `server/.env` pins RATE_LIMIT_LOGIN=1000 for local QA; CI has no `.env`, so CI
+// ran with the default and payments.test.js failed.
+//
+// Nothing is lost: no test asserts throttling, and the production guard that
+// rejects a login limit above 20 is covered by tests/env.test.js, which passes
+// explicit objects to validateEnv() and so never reads these values. These use
+// `||=` to stay overridable from the shell.
+process.env.RATE_LIMIT_LOGIN ||= '10000';
+process.env.RATE_LIMIT_AUTH ||= '100000';
+process.env.RATE_LIMIT_API ||= '1000000';

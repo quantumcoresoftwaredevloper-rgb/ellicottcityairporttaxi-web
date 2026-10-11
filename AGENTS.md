@@ -299,6 +299,34 @@ database connection; `node src/index.js` is unchanged.
 field with a default has broken this project once already, and the migration that
 papered over it (`npm run migrate:drivers`) is a manual step nothing enforces.
 
+**Run the server suite WITHOUT `server/.env` before trusting a green local run.**
+`.env` is gitignored, so CI has none — and anything a test silently inherits from it
+is a test that only passes on your machine. This has now happened twice, both times
+in `tests/env.setup.js` (see the `JWT_ACCESS_SECRET` note above and the rate-limit
+block below it), and both times CI was the only place the failure showed up:
+
+```bash
+cd server && mv .env .env.bak && npm test; mv .env.bak .env
+```
+
+The current instance: the suite logs in once per fixture user, so a full pass makes
+well over 100 login attempts from `127.0.0.1`, past the 100/15min login cap that
+applies when `RATE_LIMIT_LOGIN` is unset. The first ~100th login onwards answers 429
+with no `tokens`, and the helper feeds `undefined` into `bearer()`, so the blast lands
+on an *unrelated* test as `Cannot read properties of undefined (reading 'accessToken')`
+— which is why it reads as a payments failure rather than a throttling failure. The
+gitignored `.env` pins `RATE_LIMIT_LOGIN=1000` for local QA, so it never fired locally.
+`tests/env.setup.js` now lifts the limiters for the run; nothing is lost, because no
+test asserts throttling and the production guard on the login cap is covered by
+`tests/env.test.js`, which passes explicit objects to `validateEnv()`.
+
+**A deploy is gated on tests, so a red CI silently holds back production.** The
+`deploy-backend` job `needs: server-tests`, so a failing server test **skips** the API
+deploy rather than shipping it — correct behaviour, but easy to misread. A push whose
+`Deploy frontend to VPS` went green while `Deploy backend to VPS` was skipped means
+the web root was updated and the **API still runs the old code**. Check both jobs, not
+just the workflow's overall conclusion.
+
 **CI** (`.github/workflows/ci.yml`) runs the static gates first, then the server
 tests, client tests, and finally the browser suite against a real API and a
 `mongodb:7` service container. The API runs with `NODE_ENV=development` there

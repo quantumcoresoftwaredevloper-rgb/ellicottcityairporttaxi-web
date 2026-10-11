@@ -268,7 +268,7 @@ because testing is conventional here.
 
 | Command | What it covers | Why it exists |
 |---------|----------------|---------------|
-| `server: npm test` | 44 API tests against a **real** MongoDB (`mongodb-memory-server`) | The bugs that bit us were schema/data bugs, which mocks cannot catch — see below |
+| `server: npm test` | 94 API + socket tests against a **real** MongoDB (`mongodb-memory-server`) | The bugs that bit us were schema/data bugs, which mocks cannot catch — see below |
 | `client: npm test` | 25 unit tests: `lib/phone.js`, `lib/quote.js`, catalog fallback | These are the pure functions that carry money and phone formatting |
 | `client: npm run test:e2e` | 22 browser tests across the **web ↔ API seam** | Pages degraded quietly rather than crashing; the assertions cover the degraded path too |
 | `client: npm run check:catalog` | client fallback vs server defaults | Diffs the two lists field by field; exits non-zero on drift |
@@ -281,6 +281,15 @@ seed got locked out. A mocked model would have passed that change happily.
 `server/tests/driverVerification.test.js` and `server/tests/seed.test.js` exist
 purely to pin that, and the seed test runs the **real seed script** as a child
 process so it tests the documented setup rather than a reconstruction of it.
+
+**Why there is a separate socket suite.** `server/tests/socket.test.js` is the
+only layer that boots a **real listening server** and opens a real client
+connection. `tests/setup.js` drives the app through supertest, which calls the
+Express handler directly and never opens a socket — so no supertest-based test
+*can* reach `config/socket.js`, which meant the file guarding everyone's live
+coordinates had no coverage at all. It needs `socket.io-client` as a devDependency
+and closes with `io.close()` rather than `server.close()`: the latter only stops
+new connections and waits on live ones, so it hangs until the hook timeout.
 
 **`src/index.js` exports `app` and boots only when run directly** (guarded by
 `isDirectRun`). Importing it in a test neither binds a port nor opens a second

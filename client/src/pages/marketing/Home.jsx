@@ -55,14 +55,14 @@ export default function Home() {
 
   const { featuredServices: featured, fleet } = useCatalog();
 
-  // Quick-quote widget state. Every control here maps to a real field on the
-  // Ride model (pickup, dropoff, vehicleType, passengerCount) and a real input
-  // on the booking form — nothing is invented for the card.
-  const [vehicleKey, setVehicleKey] = useState('executive-sedan');
-  const [passengers, setPassengers] = useState(1);
-  const [miles, setMiles] = useState(0);
-  const seatCap = fleet.find((v) => v.key === vehicleKey)?.seats || 4;
-  const quote = estimateQuote(miles);
+// Quick-quote widget state. Every control here maps to a real field on the
+    // Ride model (pickup, dropoff, vehicleType) and a real input on the booking
+    // form — nothing is invented for the card. There is deliberately no rider
+    // stepper: the funnel publishes no headcounts, and party size is derived
+    // from the chosen class by the booking form and clamped server-side.
+    const [vehicleKey, setVehicleKey] = useState('executive-sedan');
+    const [miles, setMiles] = useState(0);
+    const quote = estimateQuote(miles);
 
   return (
     <div>
@@ -158,54 +158,22 @@ export default function Home() {
                     </Link>
                   </QuoteRow>
 
-                  <QuoteRow label="Vehicle" htmlFor="qq-vehicle">
-                    <select
-                      id="qq-vehicle"
-                      value={vehicleKey}
-                      onChange={(e) => {
-                        const next = e.target.value;
-                        setVehicleKey(next);
-                        // Real product rule: you cannot book more riders than
-                        // the chosen class seats.
-                        const cls = fleet.find((v) => v.key === next);
-                        const cap = cls?.seats || 4;
-                        setPassengers((p) => Math.min(p, cap));
-                      }}
-                      className="w-full cursor-pointer rounded-xl border-0 bg-white px-4 py-3 text-sm font-medium text-ink focus:ring-2 focus:ring-brand-500"
-                    >
-                      {fleet.map((v) => (
-                        <option key={v.key} value={v.key}>
-                          {v.label} — up to {v.seats ?? 4}
-                        </option>
-                      ))}
-                    </select>
-                  </QuoteRow>
-
-                  <QuoteRow label="Riders">
-                    <div className="flex w-full items-center gap-3">
-                      <button
-                        type="button"
-                        onClick={() => setPassengers((p) => Math.max(1, p - 1))}
-                        disabled={passengers <= 1}
-                        aria-label="One fewer rider"
-                        className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-white text-lg font-bold leading-none text-brand-700 transition-colors hover:bg-accent-100 disabled:opacity-40"
+<QuoteRow label="Vehicle" htmlFor="qq-vehicle">
+                      <select
+                        id="qq-vehicle"
+                        value={vehicleKey}
+                        onChange={(e) => setVehicleKey(e.target.value)}
+                        className="w-full cursor-pointer rounded-xl border-0 bg-white px-4 py-3 text-sm font-medium text-ink focus:ring-2 focus:ring-brand-500"
                       >
-                        −
-                      </button>
-                      <span className="min-w-[3.5rem] text-center text-base font-bold text-white tabular-nums">
-                        {passengers}
-                      </span>
-                      <button
-                        type="button"
-                        onClick={() => setPassengers((p) => Math.min(seatCap, p + 1))}
-                        disabled={passengers >= seatCap}
-                        aria-label="One more rider"
-                        className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-white text-lg font-bold leading-none text-brand-700 transition-colors hover:bg-accent-100 disabled:opacity-40"
-                      >
-                        +
-                      </button>
-                    </div>
-                  </QuoteRow>
+                        {/* Label only — the seat count is a capacity number and
+                            this widget carries none. */}
+                        {fleet.map((v) => (
+                          <option key={v.key} value={v.key}>
+                            {v.label}
+                          </option>
+                        ))}
+                      </select>
+                    </QuoteRow>
 
                   <QuoteRow label="Dist (miles)">
                     <div className="flex w-full items-center gap-3">

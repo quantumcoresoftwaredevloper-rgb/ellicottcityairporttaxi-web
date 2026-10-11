@@ -12,7 +12,8 @@
     "seed:rides": "node seed-demo-rides.mjs",
     "migrate:drivers": "node src/scripts/verify-existing-drivers.mjs",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "refresh:catalog-copy": "node scripts/refresh-catalog-copy.js"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",

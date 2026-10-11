@@ -17,7 +17,7 @@ export const FLEET_DEFAULTS = [
     image: '/images/ececutive-sedan.png', icon: 'car',
     tagline: 'Late-model, "all black" sedan',
     features: [
-      'Seats up to 4 comfortably', 'Leather interior', 'AM/FM & Sirius radio',
+      'Comfortable seating', 'Leather interior', 'AM/FM & Sirius radio',
       'Complimentary water', 'Air conditioning', 'Professional chauffeur in uniform',
     ],
     fare: { base: 6, perKm: 1.9, perMin: 0.4 },
@@ -28,7 +28,7 @@ export const FLEET_DEFAULTS = [
     image: '/images/economy-sedan.png', icon: 'car',
     tagline: 'Everyday rides and airport runs',
     features: [
-      'Seats up to 4 comfortably', 'Leather interior', 'AM/FM & Sirius radio',
+      'Comfortable seating', 'Leather interior', 'AM/FM & Sirius radio',
       'Complimentary water', 'Air conditioning', 'Professional chauffeur in uniform',
     ],
     fare: { base: 3, perKm: 1.4, perMin: 0.3 },
@@ -39,7 +39,7 @@ export const FLEET_DEFAULTS = [
     image: '/images/economy-suv.png', icon: 'carFront',
     tagline: 'Late-model, "all black" SUV',
     features: [
-      'Seats up to 6 comfortably', 'Leather interior', 'AM/FM & Sirius radio',
+      'Comfortable seating', 'Leather interior', 'AM/FM & Sirius radio',
       'Complimentary water', 'Air conditioning', 'Professional chauffeur in uniform',
     ],
     fare: { base: 5, perKm: 1.8, perMin: 0.4 },
@@ -50,7 +50,7 @@ export const FLEET_DEFAULTS = [
     image: '/images/premium-suv.png', icon: 'carFront',
     tagline: 'Roomier SUV with extra luggage space',
     features: [
-      'Seats up to 6 comfortably', 'Leather interior', 'AM/FM & Sirius radio',
+      'Comfortable seating', 'Leather interior', 'AM/FM & Sirius radio',
       'Complimentary water', 'Air conditioning', 'Professional chauffeur in uniform',
     ],
     fare: { base: 7, perKm: 2.2, perMin: 0.45 },
@@ -61,7 +61,7 @@ export const FLEET_DEFAULTS = [
     image: '/images/luxury-suv.png', icon: 'gem',
     tagline: 'Top-of-fleet SUV for executives and families',
     features: [
-      'Seats up to 6 comfortably', 'Premium leather interior', 'AM/FM & Sirius radio',
+      'Comfortable seating', 'Premium leather interior', 'AM/FM & Sirius radio',
       'Complimentary water', 'Air conditioning', 'Professional chauffeur in uniform',
     ],
     fare: { base: 10, perKm: 2.6, perMin: 0.5 },
@@ -72,7 +72,7 @@ export const FLEET_DEFAULTS = [
     image: '/images/Van.png', icon: 'bus',
     tagline: 'Space for groups & luggage',
     features: [
-      'Seats up to 14 without luggage', 'Seats 9 with luggage',
+      'Generous cabin space', 'Room for luggage on board',
       'Bench seating', 'Air conditioning', 'Professional chauffeur in uniform',
     ],
     fare: { base: 8, perKm: 2, perMin: 0.42 },
@@ -83,7 +83,7 @@ export const FLEET_DEFAULTS = [
     image: '/images/mini-coach.png', icon: 'bus',
     tagline: 'Groups of every size',
     features: [
-      'Seats up to 32 passengers', 'Additional luggage space', 'Forward seating',
+      'High-capacity seating', 'Additional luggage space', 'Forward seating',
       'Air conditioning', 'Professional chauffeur in uniform',
     ],
     fare: { base: 35, perKm: 3.5, perMin: 0.8 },
@@ -94,7 +94,7 @@ export const FLEET_DEFAULTS = [
     image: '/images/School-bus.png', icon: 'school',
     tagline: 'Safe routes & field trips',
     features: [
-      'Seats 42 to 48 passengers', 'Bench seating', 'Air conditioning upon request',
+      'Group bench seating', 'Bench seating', 'Air conditioning upon request',
       'Large, manual-opening windows', 'Professional chauffeur in uniform',
     ],
     fare: { base: 45, perKm: 4, perMin: 0.9 },
@@ -105,7 +105,7 @@ export const FLEET_DEFAULTS = [
     image: '/images/Motorcoach.png', icon: 'bus',
     tagline: 'Long-haul group travel',
     features: [
-      'Seats up to 56 passengers', 'Restroom on board', 'DVD & entertainment',
+      'High-capacity seating', 'Restroom on board', 'DVD & entertainment',
       'Overhead luggage bins', 'Large under-vehicle luggage area',
       'Air conditioning', 'Professional chauffeur in uniform',
     ],

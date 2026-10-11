@@ -260,7 +260,7 @@ export default function Dashboard() {
                         <span className="font-semibold text-brand-700">
                           ${(r.fare.estimated || 0).toFixed(2)}
                         </span>
-                        <span>{r.passengerCount} pax{r.bags ? ` · ${r.bags} bags` : ''}</span>
+                        <span>{r.serviceType ? `${r.serviceType} · ` : ''}{r.vehicleType}</span>
                       </div>
                     </div>
                     <Button size="sm" loading={busyId === r._id} onClick={() => accept(r)}>

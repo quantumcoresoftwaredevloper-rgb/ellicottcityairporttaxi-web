@@ -349,3 +349,70 @@ no wait, so the fix was local rather than a sweep.
 **Guard.** `22 passed (25.7s)` locally against a real API. The race is timing
 dependent and will not reproduce reliably on a laptop — CI is the honest signal,
 so treat a red e2e here as real until proven otherwise.
+
+---
+
+## 7. Removing the capacity badge was not the same as removing the capacity
+
+**Symptom.** The brief was to stop publishing passenger and luggage numbers.
+The capacity badge came off the Fleet cards and the picker and the UI looked
+right. The browser suite still failed:
+
+```
+fleet page › publishes no seat or passenger counts
+capacity copy leaked onto the fleet page: "up to 4"
+```
+
+**Cause.** Two leaks, both real, neither visible on the page before it rendered.
+
+1. **The catalog feature lists carried the numbers.** Every class shipped copy
+   like `Seats up to 4 comfortably`, `Seats 9 with luggage` and `Seats 42 to 48
+   passengers` in `features`, rendered as the card's bullet list. The badge was
+   the only visible symptom; the copy was the larger one.
+2. **`desc` is the same information in other words.** The booking dropdown fell
+   back to `Up to 4 riders` the moment `capacity` was removed, because the
+   expression was `v.capacity || v.desc`.
+
+**Fix.** Rewrote the numbered feature strings to qualitative copy ("Comfortable
+seating", "Group bench seating") in both `client/src/data/vehicles.js` and
+`server/src/services/catalogService.js` — both, because `check:catalog` diffs
+the lists byte for byte. Dropped `desc` from the dropdown rather than letting it
+become the fallback.
+
+**Guard.** The new e2e assertion matches `\d+–\d+ passengers`, `up to \d+` and
+`seats…\d` against the rendered text of all nine cards. It is deliberately
+broader than the field it replaced, because the leak was in copy rather than in
+the field. An earlier revision of this guard checked only the badge and passed
+while every card still advertised its seating.
+
+**Follow-on.** `capacity` is still in the catalog even though nothing renders
+it, because `check:catalog` diffs that field and `seats`/`bags` drive pricing
+and the server clamp. See #8.
+
+---
+
+## 8. Hiding the passenger controls removed the only seat cap — the API accepted 500 riders in a sedan
+
+**Symptom.** Not a failing test. A reading of the code while removing the
+controls: the schema bounds `passengerCount` with `min: 1` and does **not bound
+`bags` at all**, and `rideService` fetched the vehicle document purely for its
+`fare`. `vehicle.seats` and `vehicle.bags` were never read anywhere in
+`server/src`.
+
+So the two `useEffect` clamps in `BookingForm` and the stepper in `Home` were the
+*entire* enforcement path. A request straight to the API with
+`{ vehicleType: 'executive-sedan', passengerCount: 500 }` was accepted and
+persisted. Deleting those controls without replacing the check would have left
+the fleet liable at the kerb.
+
+**Fix.** `clampToVehicleCapacity(vehicle, passengerCount, bags)` in
+`rideService`, applied on both create and edit. Clamps rather than rejects, so a
+stale client that still sends its own count does not fail a legitimate booking;
+it lands on the largest party the vehicle can carry. Edit re-clamps even when the
+client sends no counts, because the class may have shrunk under an existing ride.
+
+**Guard.** `server/tests/isolation.test.js` asserts the clamp for every active
+class, plus oversized input, junk input, a negative bag count, and the
+downgrade-on-edit path. Non-numeric input resolves to the class maximum and a
+negative number to zero — the two directions are asserted separately, because
+they are different rules.

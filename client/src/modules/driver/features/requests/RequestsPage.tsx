@@ -58,7 +58,7 @@ export default function RequestsPage() {
           <motion.div key={r._id} initial={{opacity:0,y:8}} animate={{opacity:1,y:0}}>
             <Card>
               <div className="flex items-start justify-between">
-                <div><p className="font-display font-semibold">{r.passenger?.name || 'Passenger'} <span className="ml-1 inline-flex items-center gap-1 text-xs text-muted"><Star className="h-3 w-3 text-gold-400 fill-current" /> {r.passenger?.rating || '5.0'}</span></p><p className="text-xs text-muted">{r.serviceType || 'Airport'} • {r.vehicleType} • {r.passengerCount} pax</p></div>
+                <div><p className="font-display font-semibold">{r.passenger?.name || 'Passenger'} <span className="ml-1 inline-flex items-center gap-1 text-xs text-muted"><Star className="h-3 w-3 text-gold-400 fill-current" /> {r.passenger?.rating || '5.0'}</span></p><p className="text-xs text-muted">{r.serviceType || 'Airport'} • {r.vehicleType}</p></div>
                 <span className="rounded-full bg-gold-50 px-2.5 py-1 text-xs font-bold text-gold-700 animate-pulse">{r._countdown ?? 45}s</span>
               </div>
               <div className="mt-3 space-y-1 text-sm">

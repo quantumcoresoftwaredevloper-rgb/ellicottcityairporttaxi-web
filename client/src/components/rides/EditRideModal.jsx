@@ -119,29 +119,10 @@ export default function EditRideModal({ ride, onClose, onSaved }) {
                   <option key={v.key} value={v.key}>{v.label}</option>
                 ))}
               </select>
-            </label>
-            <label className="block">
-              <span className="mb-1.5 block text-sm font-medium text-ink">Passengers</span>
-              <input
-                type="number"
-                min="1"
-                max="16"
-                className="input-pill w-full border border-accent-300 bg-surface px-4 py-3 text-sm outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-200"
-                value={form.passengerCount}
-                onChange={(e) => setForm({ ...form, passengerCount: e.target.value })}
-              />
-            </label>
-          </div>
+</label>
+            </div>
 
-          <Input
-            label="Bags"
-            type="number"
-            min="0"
-            value={form.bags}
-            onChange={(e) => setForm({ ...form, bags: e.target.value })}
-          />
-
-          {error && <p className="text-sm text-brand-600">{error}</p>}
+            {error && <p className="text-sm text-brand-600">{error}</p>}
           <div className="flex gap-2 pt-1">
             <Button type="button" variant="secondary" onClick={onClose}>Cancel</Button>
             <Button type="submit" loading={loading} className="flex-1">Save changes</Button>

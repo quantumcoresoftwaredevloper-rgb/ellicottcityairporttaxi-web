@@ -9,9 +9,12 @@ import { useCatalog } from '../../context/CatalogContext.jsx';
 export default function Fleet() {
   const { user } = useAuth();
   const { content } = useContent();
-  // Admin-managed from /admin/content → Fleet. Marketing copy, imagery and
-  // capacity lines all come from the catalog, not this file.
-  const { fleet } = useCatalog();
+// Admin-managed from /admin/content → Fleet. Marketing copy and imagery
+    // come from the catalog, not this file. Capacity is deliberately NOT shown:
+    // customers pick a vehicle, not a headcount, so the page carries no seat or
+    // luggage numbers. The data stays in the catalog for pricing and for the
+    // server-side clamp in rideService.
+    const { fleet } = useCatalog();
   const bookUrl = user ? '/reservations' : '/login';
 
   return (
@@ -73,14 +76,7 @@ export default function Fleet() {
                   )}
                 </div>
                 <div className="flex flex-1 flex-col p-7">
-                  <div className="flex flex-wrap items-center justify-between gap-2">
-                    <h3 className="text-xl font-bold text-ink">{v.label}</h3>
-                    {v.capacity && (
-                      <span className="rounded-full bg-brand-50 px-3 py-1 text-xs font-semibold text-brand-700">
-                        {v.capacity}
-                      </span>
-                    )}
-                  </div>
+                  <h3 className="text-xl font-bold text-ink">{v.label}</h3>
                   {v.tagline && <p className="mt-1 text-sm font-medium text-brand-600">{v.tagline}</p>}
                   <ul className="mt-5 space-y-2">
                     {(v.features || []).map((f) => (

@@ -40,6 +40,37 @@ const cacheSet = (cache, key, value, ttlMs = 5 * 60 * 1000) => {
 const fail = (message, statusCode = 400) =>
   Object.assign(new Error(message), { statusCode });
 
+/**
+ * Clamp a ride's party size and luggage against the booked class's real capacity.
+ *
+ * The booking UI no longer offers passenger or bag pickers — customers see the
+ * vehicle, not its numbers — so these counts are derived from the class rather
+ * than chosen. That makes this the ONLY place the ceiling is enforced: the
+ * schema only pins `passengerCount` to a minimum of 1 and leaves `bags`
+ * unbounded, so without this a direct API caller could book a four-seat sedan
+ * for five hundred people and the driver would find out at the kerb.
+ *
+ * Values are clamped rather than rejected. A stale client that still sends its
+ * own count should not fail a legitimate booking outright; it should land on the
+ * largest party the chosen vehicle can actually carry. Non-numeric input
+ * resolves to the class maximum, which is the safe direction.
+ */
+const clampToVehicleCapacity = (vehicle, passengerCount, bags) => {
+  const seats = Number.isFinite(vehicle?.seats) && vehicle.seats > 0 ? vehicle.seats : 4;
+  const maxBags = Number.isFinite(vehicle?.bags) && vehicle.bags >= 0 ? vehicle.bags : 0;
+
+  const clamp = (value, min, max, fallback) => {
+    const n = Number(value);
+    if (!Number.isFinite(n)) return fallback;
+    return Math.min(max, Math.max(min, Math.trunc(n)));
+  };
+
+  return {
+    passengerCount: clamp(passengerCount, 1, seats, seats),
+    bags: clamp(bags, 0, maxBags, maxBags),
+  };
+};
+
 // Normalise a pickup/drop-off into { address, lat, lng }.
 // Accepts either client-supplied coordinates or a plain address to geocode.
 const resolveStop = async (stop, label) => {
@@ -154,14 +185,13 @@ export const createRide = async (passengerId, input) => {
     vehicle.fare
   );
 
-  const ride = await Ride.create({
-    passenger: passengerId,
-    pickup,
-    dropoff,
-    vehicleType: vehicle.key,
-    serviceType: service?.slug || '',
-    passengerCount: input.passengerCount || 1,
-    bags: input.bags || 0,
+const ride = await Ride.create({
+      passenger: passengerId,
+      pickup,
+      dropoff,
+      vehicleType: vehicle.key,
+      serviceType: service?.slug || '',
+      ...clampToVehicleCapacity(vehicle, input.passengerCount, input.bags),
     fare: {
       estimated,
       distanceKm: route.distanceKm,
@@ -379,12 +409,19 @@ export const editRide = async (rideId, passengerId, input) => {
       : await assertServiceSlug(input.serviceType);
   const estimated = estimateFare(distanceKm, durationMin, vehicle.key, settings, vehicle.fare);
 
-  ride.pickup = pickup;
-  ride.dropoff = dropoff;
-  ride.vehicleType = vehicle.key;
-  if (service) ride.serviceType = service.slug;
-  ride.passengerCount = input.passengerCount ?? ride.passengerCount;
-  ride.bags = input.bags ?? ride.bags;
+ride.pickup = pickup;
+    ride.dropoff = dropoff;
+    ride.vehicleType = vehicle.key;
+    if (service) ride.serviceType = service.slug;
+    // Re-clamp: the class may have shrunk since the ride was created, e.g. an
+    // admin switching a van to a sedan, so the old count can now exceed it.
+    const capacity = clampToVehicleCapacity(
+      vehicle,
+      input.passengerCount ?? ride.passengerCount,
+      input.bags ?? ride.bags
+    );
+    ride.passengerCount = capacity.passengerCount;
+    ride.bags = capacity.bags;
   ride.route = route;
   // preserve currency/final when recomputing fare
   ride.fare.estimated = estimated;

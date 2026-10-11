@@ -12,7 +12,6 @@ const users = [
     name: 'Admin',
     email: 'admin@ellicot.com',
     phone: '+1 555 010 0000',
-    brandPhone: '+1 555 019 0000',
     password: 'admin123',
     role: 'admin',
     emailVerified: true,
@@ -21,7 +20,6 @@ const users = [
     name: 'John Passenger',
     email: 'passenger@ellicot.com',
     phone: '+1 555 010 1000',
-    brandPhone: '+1 555 019 1000',
     password: 'pass123',
     role: 'passenger',
     emailVerified: true,
@@ -30,7 +28,6 @@ const users = [
     name: 'Driver Alex',
     email: 'alex@ellicot.com',
     phone: '+1 555 010 2001',
-    brandPhone: '+1 555 019 2001',
     password: 'driver123',
     role: 'driver',
     emailVerified: true,
@@ -50,7 +47,6 @@ const users = [
     name: 'Driver Sam',
     email: 'sam@ellicot.com',
     phone: '+1 555 010 2002',
-    brandPhone: '+1 555 019 2002',
     password: 'driver123',
     role: 'driver',
     emailVerified: true,
@@ -64,15 +60,12 @@ const users = [
   },
 ];
 
-// Each account exists on the legacy @ellicot.com domain and on the current
-// @ridetaxi.com brand domain, so either login works in local dev. Phones differ
-// because sign-in also resolves a bare phone number.
-const BRAND_DOMAIN = 'ridetaxi.com';
-const brandUsers = users.map(({ brandPhone, ...u }) => ({
-  ...u,
-  email: u.email.replace(/@.*$/, `@${BRAND_DOMAIN}`),
-  phone: brandPhone,
-}));
+// One domain only: @ellicot.com. This used to seed a second copy of every
+// account on @ridetaxi.com so either domain could sign in. That is gone: the
+// migration target is @ellicot.com (scripts/migrate-demo-emails.js), so
+// seeding the old domain only guaranteed a future rename. It also meant eight
+// accounts to keep in step, and a bare phone number had to differ per copy or
+// sign-in could not tell them apart.
 
 const seedLocations = async (drivers) => {
   // Howard County, Maryland area
@@ -104,7 +97,7 @@ const run = async () => {
   await AppSetting.deleteMany({});
 
   const created = [];
-  for (const u of [...users, ...brandUsers]) {
+  for (const u of users) {
     const user = await User.create(u);
     created.push(user);
   }
@@ -120,7 +113,7 @@ const run = async () => {
   ]);
 
   console.log(`Seed complete (${mongoose.connection.name}):`);
-  [...users, ...brandUsers].forEach((u) => console.log(`  ${u.role.padEnd(9)} ${u.email} / ${u.password}`));
+  users.forEach((u) => console.log(`  ${u.role.padEnd(9)} ${u.email} / ${u.password}`));
   await mongoose.connection.close();
   process.exit(0);
 };

@@ -25,7 +25,7 @@ export const VEHICLES = [
     image: '/images/ececutive-sedan.png',
     tagline: 'Late-model, "all black" sedan',
     features: [
-      'Seats up to 4 comfortably', 'Leather interior', 'AM/FM & Sirius radio',
+      'Comfortable seating', 'Leather interior', 'AM/FM & Sirius radio',
       'Complimentary water', 'Air conditioning', 'Professional chauffeur in uniform',
     ],
   },
@@ -35,7 +35,7 @@ export const VEHICLES = [
     image: '/images/economy-sedan.png',
     tagline: 'Everyday rides and airport runs',
     features: [
-      'Seats up to 4 comfortably', 'Leather interior', 'AM/FM & Sirius radio',
+      'Comfortable seating', 'Leather interior', 'AM/FM & Sirius radio',
       'Complimentary water', 'Air conditioning', 'Professional chauffeur in uniform',
     ],
   },
@@ -45,7 +45,7 @@ export const VEHICLES = [
     image: '/images/economy-suv.png',
     tagline: 'Late-model, "all black" SUV',
     features: [
-      'Seats up to 6 comfortably', 'Leather interior', 'AM/FM & Sirius radio',
+      'Comfortable seating', 'Leather interior', 'AM/FM & Sirius radio',
       'Complimentary water', 'Air conditioning', 'Professional chauffeur in uniform',
     ],
   },
@@ -55,7 +55,7 @@ export const VEHICLES = [
     image: '/images/premium-suv.png',
     tagline: 'Roomier SUV with extra luggage space',
     features: [
-      'Seats up to 6 comfortably', 'Leather interior', 'AM/FM & Sirius radio',
+      'Comfortable seating', 'Leather interior', 'AM/FM & Sirius radio',
       'Complimentary water', 'Air conditioning', 'Professional chauffeur in uniform',
     ],
   },
@@ -65,7 +65,7 @@ export const VEHICLES = [
     image: '/images/luxury-suv.png',
     tagline: 'Top-of-fleet SUV for executives and families',
     features: [
-      'Seats up to 6 comfortably', 'Premium leather interior', 'AM/FM & Sirius radio',
+      'Comfortable seating', 'Premium leather interior', 'AM/FM & Sirius radio',
       'Complimentary water', 'Air conditioning', 'Professional chauffeur in uniform',
     ],
   },
@@ -75,7 +75,7 @@ export const VEHICLES = [
     image: '/images/Van.png',
     tagline: 'Space for groups & luggage',
     features: [
-      'Seats up to 14 without luggage', 'Seats 9 with luggage',
+      'Generous cabin space', 'Room for luggage on board',
       'Bench seating', 'Air conditioning', 'Professional chauffeur in uniform',
     ],
   },
@@ -85,7 +85,7 @@ export const VEHICLES = [
     image: '/images/mini-coach.png',
     tagline: 'Groups of every size',
     features: [
-      'Seats up to 32 passengers', 'Additional luggage space', 'Forward seating',
+      'High-capacity seating', 'Additional luggage space', 'Forward seating',
       'Air conditioning', 'Professional chauffeur in uniform',
     ],
   },
@@ -95,7 +95,7 @@ export const VEHICLES = [
     image: '/images/School-bus.png',
     tagline: 'Safe routes & field trips',
     features: [
-      'Seats 42 to 48 passengers', 'Bench seating', 'Air conditioning upon request',
+      'Group bench seating', 'Bench seating', 'Air conditioning upon request',
       'Large, manual-opening windows', 'Professional chauffeur in uniform',
     ],
   },
@@ -105,7 +105,7 @@ export const VEHICLES = [
     image: '/images/Motorcoach.png',
     tagline: 'Long-haul group travel',
     features: [
-      'Seats up to 56 passengers', 'Restroom on board', 'DVD & entertainment',
+      'High-capacity seating', 'Restroom on board', 'DVD & entertainment',
       'Overhead luggage bins', 'Large under-vehicle luggage area',
       'Air conditioning', 'Professional chauffeur in uniform',
     ],

@@ -586,19 +586,18 @@ the Website content section). `GET /api/settings` exposes a public subset.
 cd server && npm run seed   # resets users, driver positions and app settings
 ```
 
-Each account exists on **two domains** — the current `@ridetaxi.com` brand domain and the
-legacy `@ellicot.com` domain — with different phone numbers, because sign-in also resolves a
-bare phone number. Either login works.
+All accounts are on **one domain**, `@ellicot.com`. The seed used to write a second copy of
+every account on `@ridetaxi.com` so either could sign in; that is gone. `@ellicot.com` is the
+migration target (`scripts/migrate-demo-emails.js`), so seeding the old domain only guaranteed a
+future rename, and the duplicate copies needed different phone numbers or bare-phone sign-in
+could not tell them apart.
 
 | Role | Email | Password |
 |------|-------|----------|
-| admin | `admin@ridetaxi.com` | `admin123` |
-| passenger | `passenger@ridetaxi.com` | `pass123` |
-| driver (sedan) | `alex@ridetaxi.com` | `driver123` |
-| driver (suv) | `sam@ridetaxi.com` | `driver123` |
-| admin (legacy) | `admin@ellicot.com` | `admin123` |
-| passenger (legacy) | `passenger@ellicot.com` | `pass123` |
-| driver (legacy) | `alex@ellicot.com` / `sam@ellicot.com` | `driver123` |
+| admin | `admin@ellicot.com` | `admin123` |
+| passenger | `passenger@ellicot.com` | `pass123` |
+| driver (sedan) | `alex@ellicot.com` | `driver123` |
+| driver (suv) | `sam@ellicot.com` | `driver123` |
 
 Driver positions are seeded near Howard County, MD (~39.20, -76.85). "Nearby drivers" queries use these seeded `Location` docs — no drivers online until you run the seed.
 
@@ -773,21 +772,35 @@ io.to(`ride:${rideId}`).emit('ride:update', { ride, status });
     - **The ink is baked per file, not `currentColor`.** `color` is *also* the text colour, so a `text-white` utility on a dotted section silently overrides a `currentColor` ink and paints the dots solid white.
     - **The asset lives in `public/`, not `src/assets/`.** Vite does not rewrite `url()` inside a `background-image` custom property, so a bundled `src/assets` file silently 404s in production.
 20. **Cards on a dotted band must be opaque.** A translucent panel (`bg-white/10`) lets the world map read straight through it, which looks like the map is floating in front of the card. Use `bg-surface`, or a solid `brand-900` for a dark card. The map belongs to the band *behind* the content, never on a card.
-21. **A quote widget may only contain real product fields.** The hero "Get a quick quote" card is a conversion surface, and anything on it reads as something the customer can actually buy. Every control must map to a real `Ride` field that the booking form also collects — `pickup`, `dropoff`, `vehicleType`, `passengerCount`. A "Round trip" toggle was built and then removed precisely because the `Ride` model has no such field and the booking flow cannot honour it. Do not add a control that the server would ignore. Vehicle choices and seat caps come from the live catalog via `useCatalog()`, so they follow whatever an admin has published rather than a hardcoded list.
-22. **Never hardcode business pricing on the client.** `lib/quote.js` mirrors the server's formula and the server's own `FALLBACK_FARE`, and labels the result an estimate. Per-class fares are deliberately not public (`GET /api/fleet` omits `fare`), so a card that shows a per-class price would be inventing it. If accurate per-class quotes are ever wanted, add a public **endpoint** that owns the pricing — do not copy the numbers into the client. Two consequences to respect: the quote must be labelled an estimate, and the rider count must stay capped by the selected class's real `seats`.
-23. **The offline catalog fallbacks must mirror the server defaults field for field, and `npm run check:catalog` enforces it.** `data/vehicles.js` and `data/services.js` are what render when `GET /api/fleet` / `/api/services` are slow or unreachable — which is the *normal* case on a deployed site that has not set `VITE_API_URL`, because the client then calls `/api` on its own origin. Both lists have silently drifted, and every symptom was invisible locally, visible only in production:
+21. **The funnel publishes no capacity numbers.** Seat and luggage counts are deliberately absent
+    from every customer-facing surface: the Fleet cards, the booking form's vehicle list and pickers,
+    the Home quick-quote, and the ride/driver/requests displays. The data is still in the catalog —
+    `seats`/`bags` drive pricing and the server-side clamp in `rideService.clampToVehicleCapacity`,
+    and `capacity` stays for `check:catalog` — it is simply never rendered. The e2e test
+    `publishes no seat or passenger counts` guards this, and it is deliberately broad: an earlier
+    version only checked the capacity badge and passed while the *feature lists* were still saying
+    "Seats up to 4 comfortably" on every card. Copy lives in the catalog, so the guard covers copy.
+22. **Changing default catalog copy does NOT reach an existing database.** `ensureCatalogDefaults()`
+    only seeds an empty collection and `restore-defaults` only re-adds missing rows — both
+    deliberate, so boot never resurrects a deleted class or overwrites an admin edit. The side
+    effect is that a live database keeps serving the old words. After changing default copy, run
+    `npm run refresh:catalog-copy`, which rewrites only the fields listed in its `COPY_FIELDS` and
+    leaves an admin's label, tagline and fare alone.
+23. **A quote widget may only contain real product fields.** The hero "Get a quick quote" card is a conversion surface, and anything on it reads as something the customer can actually buy. Every control must map to a real `Ride` field that the booking form also collects — `pickup`, `dropoff`, `vehicleType`, `passengerCount`. A "Round trip" toggle was built and then removed precisely because the `Ride` model has no such field and the booking flow cannot honour it. Do not add a control that the server would ignore. Vehicle choices and seat caps come from the live catalog via `useCatalog()`, so they follow whatever an admin has published rather than a hardcoded list.
+24. **Never hardcode business pricing on the client.** `lib/quote.js` mirrors the server's formula and the server's own `FALLBACK_FARE`, and labels the result an estimate. Per-class fares are deliberately not public (`GET /api/fleet` omits `fare`), so a card that shows a per-class price would be inventing it. If accurate per-class quotes are ever wanted, add a public **endpoint** that owns the pricing — do not copy the numbers into the client. Two consequences to respect: the quote must be labelled an estimate, and the rider count must stay capped by the selected class's real `seats`.
+25. **The offline catalog fallbacks must mirror the server defaults field for field, and `npm run check:catalog` enforces it.** `data/vehicles.js` and `data/services.js` are what render when `GET /api/fleet` / `/api/services` are slow or unreachable — which is the *normal* case on a deployed site that has not set `VITE_API_URL`, because the client then calls `/api` on its own origin. Both lists have silently drifted, and every symptom was invisible locally, visible only in production:
     - `seats: 4` + `image: ''` on every class → no vehicle photos, and a Van claiming 4 seats.
     - `tagline: ''` + `features: []` on every class → photos and "Book now" rendered but every description and feature list vanished.
     - `icon: ''` + `featured: false` on every service → all service icons blank and the Home featured band emptied outright (12 service links → 7).
 
     So `check:catalog` diffs both client lists against `FLEET_DEFAULTS` / `SERVICE_DEFAULTS` and exits non-zero on any drift. **Run it after editing either side.** A hand-copied list cannot be trusted; that is the whole reason this check exists. Note the client `icon` is a NAME string for `ServiceIcon`, not a component, and `featured` is compared as a boolean because the server omits it on non-featured offerings.
-24. **A background-IMAGE beats a background-color, so `bg-surface` on a primary `Button` is a no-op.** `btn-brand-gradient` sets `background-image`, which paints over the `background-color` that `bg-surface` sets — but `!text-brand-900` still wins the text. The result is dark text on the blue gradient at **1.45:1**, i.e. invisible. Five CTAs carried `bg-surface !text-brand-900` for this reason. On a blue band, use the default primary variant and let the white text stand; only invert when you also remove the gradient. `check:contrast` prints this pairing as a documented, non-gated trap.
-25. **Let a photo set its own height when the whole subject must be visible.** The Home image band used `h-72 sm:h-96` + `object-cover`, which cropped the roof and wheels off the sedan. Use `w-full` with no fixed height so the section matches the source aspect exactly, overlay the scrim on top, and move the copy below the image on small screens rather than squeezing it over the photo.
-26. **The logo's wordmark is navy, so the logo always needs a light plate.** `public/images/logo-full.png` is the full lockup (car/plane/tower graphic + "ELLIOTT CITY / AIRPORT TAXI" wordmark). Every band in this design is `bg-brand-gradient` navy, so dropping the logo straight onto one makes the wordmark invisible, and the dark car graphic disappears too. It therefore always sits inside a white rounded plate. Two different crops, because two different jobs:
+26. **A background-IMAGE beats a background-color, so `bg-surface` on a primary `Button` is a no-op.** `btn-brand-gradient` sets `background-image`, which paints over the `background-color` that `bg-surface` sets — but `!text-brand-900` still wins the text. The result is dark text on the blue gradient at **1.45:1**, i.e. invisible. Five CTAs carried `bg-surface !text-brand-900` for this reason. On a blue band, use the default primary variant and let the white text stand; only invert when you also remove the gradient. `check:contrast` prints this pairing as a documented, non-gated trap.
+27. **Let a photo set its own height when the whole subject must be visible.** The Home image band used `h-72 sm:h-96` + `object-cover`, which cropped the roof and wheels off the sedan. Use `w-full` with no fixed height so the section matches the source aspect exactly, overlay the scrim on top, and move the copy below the image on small screens rather than squeezing it over the photo.
+28. **The logo's wordmark is navy, so the logo always needs a light plate.** `public/images/logo-full.png` is the full lockup (car/plane/tower graphic + "ELLIOTT CITY / AIRPORT TAXI" wordmark). Every band in this design is `bg-brand-gradient` navy, so dropping the logo straight onto one makes the wordmark invisible, and the dark car graphic disappears too. It therefore always sits inside a white rounded plate. Two different crops, because two different jobs:
     - **`logo-full.png` (full lockup)** — the footer and the auth aside, where there is vertical room.
     - **`logo-mark.png` (graphic only)** — the navbar. The full lockup at navbar height is ~28px wide and its wordmark is illegible, so the navbar pairs the mark with the name set as live text. Do not swap the mark for the full lockup here.
-27. **The logo assets are generated, not hand-edited.** `client/scripts/build-logo-assets.py` derives every one from two sources and takes both as arguments. They are **byte-reproducible** — re-run and the md5 must not change.
+29. **The logo assets are generated, not hand-edited.** `client/scripts/build-logo-assets.py` derives every one from two sources and takes both as arguments. They are **byte-reproducible** — re-run and the md5 must not change.
     - `logo-full.png` (480×315, footer + auth) comes from the **source artwork** with a **border flood fill**, not a global white→transparent pass: a global pass punches holes through the car's white paint highlights and the swoosh. Verified 0% holes on every solid body panel.
     - `logo-mark.png` (197×84, navbar) comes from the **remove.bg export**, then `repair_interior_holes()` puts back the pixels that tool wrongly deleted. Flood the transparent region in from the border: what the flood reaches is real background, what is transparent and *unreached* is an interior hole, restored from the pixel-aligned source. Keep the two sources the same dimensions or the repair silently misaligns.
     - Both are exported at **3×** their CSS display size for retina, not at the 612×408 source size — the mark went 130 KB → 26 KB that way. `favicon.png` 512, `apple-touch-icon.png` 180.
-28. **A near-transparent region in this artwork is not necessarily damage.** The studio background is a flat luminance 247, and the windscreen glass is *also* median 247 — the same tone. So a background remover making the glass transparent produces a difference of 247 vs 255 on the white plate, which is imperceptible. Measure what actually reaches the screen before calling a hole a bug; `logo-full.png` is ~195 KB because the lockup has 28k distinct colours (photographic), and WebP would take it to ~57 KB if that trade is ever worth making.
+30. **A near-transparent region in this artwork is not necessarily damage.** The studio background is a flat luminance 247, and the windscreen glass is *also* median 247 — the same tone. So a background remover making the glass transparent produces a difference of 247 vs 255 on the white plate, which is imperceptible. Measure what actually reaches the screen before calling a hole a bug; `logo-full.png` is ~195 KB because the lockup has 28k distinct colours (photographic), and WebP would take it to ~57 KB if that trade is ever worth making.

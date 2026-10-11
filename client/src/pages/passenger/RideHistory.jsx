@@ -84,7 +84,7 @@ export default function RideHistory() {
                 </div>
                 <div className="flex flex-col items-end gap-2">
                   <p className="font-display font-bold text-brand-700 dark:text-white">${(r.status === 'completed' ? r.fare.final : r.fare.estimated || 0).toFixed(2)}</p>
-                  <p className="text-xs text-muted">{vehicleLabel(r.vehicleType)} • {r.passengerCount} pax</p>
+                  <p className="text-xs text-muted">{vehicleLabel(r.vehicleType)}</p>
                   <div className="flex flex-wrap gap-1.5 justify-end">
                     {['pending', 'accepted', 'arriving', 'in_progress'].includes(r.status) && (
                       <Link to={`/rides/track/${r._id}`} className="rounded-full bg-brand-600 px-3 py-1.5 text-xs font-semibold text-white hover:bg-brand-700">Track • Live Chat</Link>

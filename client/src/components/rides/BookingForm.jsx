@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { MapPin, Flag } from 'lucide-react';
 import { createRide, nearbyDrivers } from '../../services/rideService.js';
@@ -15,8 +15,6 @@ export default function BookingForm({ pickup, dropoff, onPickupChange, onDropoff
   const [when, setWhen] = useState('now');
   const [vehicleType, setVehicleType] = useState('');
   const [serviceType, setServiceType] = useState('');
-  const [passengerCount, setPassengerCount] = useState(1);
-  const [bags, setBags] = useState(0);
   const [extra, setExtra] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -31,14 +29,17 @@ export default function BookingForm({ pickup, dropoff, onPickupChange, onDropoff
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pickup, dropoff]);
 
-  // Picking a bigger class should pre-fill the party size instead of silently
-  // asking a van to carry 1 passenger and 0 bags.
-  useEffect(() => {
-    const v = fleet.find((x) => x.key === vehicleType);
-    if (!v) return;
-    setPassengerCount((n) => (n > (v.seats || 4) ? v.seats : n));
-    setBags((n) => (n > (v.bags ?? 0) ? v.bags : n));
-  }, [vehicleType, fleet]);
+// Party size and luggage are no longer customer choices — the picker would only
+// publish seat and bag counts, and the brief is that the booking funnel carries
+// none of those numbers. They are derived from the chosen class instead and sent
+// as ordinary Ride fields. `rideService.clampToVehicleCapacity` is the authority
+// and re-clamps server-side, so this is a convenience rather than the guard.
+const selectedVehicle = useMemo(
+  () => fleet.find((x) => x.key === vehicleType) ?? null,
+  [vehicleType, fleet]
+);
+const passengerCount = selectedVehicle?.seats || 4;
+const bags = selectedVehicle?.bags ?? 0;
 
   const submit = async (e) => {
     e.preventDefault();
@@ -156,10 +157,11 @@ export default function BookingForm({ pickup, dropoff, onPickupChange, onDropoff
           aria-label="Vehicle type"
         >
           <option value="" disabled>Choose vehicle — fare updates instantly</option>
+          {/* Label only. `capacity` ("1–4 passengers") and `desc` ("Up to 4
+              riders") are both headcounts and both stay out of the dropdown. */}
           {fleet.map((v) => (
             <option key={v.key} value={v.key}>
               {v.label}
-              {v.capacity ? ` — ${v.capacity}` : v.desc ? ` — ${v.desc}` : ''}
             </option>
           ))}
         </select>
@@ -171,7 +173,7 @@ export default function BookingForm({ pickup, dropoff, onPickupChange, onDropoff
         className="text-left text-sm font-medium text-brand-700 hover:text-brand-800 focus-visible:ring-2 focus-visible:ring-brand-500 rounded-full"
         aria-expanded={showMore}
       >
-        {showMore ? '− Fewer options' : '+ More options (passengers, bags, service)'}
+        {showMore ? '− Fewer options' : '+ More options (service, notes)'}
       </button>
 
       {showMore && (
@@ -191,27 +193,9 @@ export default function BookingForm({ pickup, dropoff, onPickupChange, onDropoff
               ))}
             </select>
           </label>
-          <div className="grid grid-cols-2 gap-3">
-            <label className="block">
-              <span className="mb-1.5 block text-sm font-medium text-ink">Passengers</span>
-              <select value={passengerCount} onChange={(e) => setPassengerCount(+e.target.value)} className={field}>
-                {[1, 2, 3, 4, 5, 6, 7, 8].map((n) => (
-                  <option key={n} value={n}>{n}</option>
-                ))}
-              </select>
-            </label>
-            <label className="block">
-              <span className="mb-1.5 block text-sm font-medium text-ink">Bags</span>
-              <select value={bags} onChange={(e) => setBags(+e.target.value)} className={field}>
-                {[0, 1, 2, 3, 4, 5].map((n) => (
-                  <option key={n} value={n}>{n}</option>
-                ))}
-              </select>
-            </label>
-          </div>
           <Input
             label="Notes for driver (optional)"
-            placeholder="Luggage, accessibility, flight number"
+            placeholder="Accessibility, flight number, child seat"
             value={extra}
             onChange={(e) => setExtra(e.target.value)}
           />

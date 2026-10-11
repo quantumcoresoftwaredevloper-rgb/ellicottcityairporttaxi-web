@@ -41,38 +41,45 @@ test.describe('the phone number is straight everywhere', () => {
 });
 
 test.describe('fleet page', () => {
-  test('shows a photo, capacity, tagline and features for every class', async ({ page }) => {
-    await page.goto('/fleet');
-    const cards = page.locator('div.panel');
-    await expect(cards).toHaveCount(9);
+    test('shows a photo, tagline and features for every class', async ({ page }) => {
+      await page.goto('/fleet');
+      const cards = page.locator('div.panel');
+      await expect(cards).toHaveCount(9);
 
-    for (let i = 0; i < 9; i++) {
-      const card = cards.nth(i);
-      const img = card.locator('img');
-      await expect(img, `card ${i} has no photo`).toHaveCount(1);
-      // The image must actually decode, not 404.
-      expect(await img.evaluate((n) => n.naturalWidth > 0), `card ${i} image failed to load`).toBe(true);
+      for (let i = 0; i < 9; i++) {
+        const card = cards.nth(i);
+        const img = card.locator('img');
+        await expect(img, `card ${i} has no photo`).toHaveCount(1);
+        // The image must actually decode, not 404.
+        expect(await img.evaluate((n) => n.naturalWidth > 0), `card ${i} image failed to load`).toBe(true);
 
-      const text = (await card.textContent()) ?? '';
-      expect(text, `card ${i} has no capacity badge`).toMatch(/\d+[–-]\d+ passengers/);
-      expect(await card.locator('li').count(), `card ${i} has no features`).toBeGreaterThan(3);
-    }
+        expect(await card.locator('li').count(), `card ${i} has no features`).toBeGreaterThan(3);
+      }
+    });
+
+    // The catalog still carries `capacity` and `seats` — the server clamps a
+    // ride's party size against them, and `check:catalog` diffs them between the
+    // client fallback and the server defaults. What changed is that customers no
+    // longer SEE them. This test guards the absence, so a future "helpful" edit
+    // that re-adds a headcount badge fails here rather than shipping.
+    // Anything shaped like a headcount. This is deliberately broad: the first
+    // version of this test only looked for the capacity badge and passed while
+    // the feature lists were still shipping "Seats up to 4 comfortably" on every
+    // single card. The copy lives in the catalog, so the guard has to cover copy,
+    // not just the field it replaced.
+    const CAPACITY_COPY = /\d+\s*[–-]\s*\d+\s*passengers|up to\s+\d+|\bseats?\b[^.]{0,20}\d/i;
+
+    test('publishes no seat or passenger counts', async ({ page }) => {
+      await page.goto('/fleet');
+      const cards = page.locator('div.panel');
+      await expect(cards).toHaveCount(9);
+      const text = (await cards.allTextContents()).join(' ');
+
+      const offender = text.match(CAPACITY_COPY);
+      expect(offender, `capacity copy leaked onto the fleet page: ${JSON.stringify(offender?.[0])}`)
+        .toBeNull();
+    });
   });
-
-  test('seat counts are real (a Van seats 14, not 4)', async ({ page }) => {
-    await page.goto('/fleet');
-    const cards = page.locator('div.panel');
-    // Wait for the fleet to paint before reading. `allTextContents()` does not
-    // auto-wait, so reading straight after `goto` races React's first render and
-    // returns an empty array — which surfaced as `Received string: ""` on slower
-    // CI runners while passing on a fast laptop. The sibling test above already
-    // waits; this one has to as well.
-    await expect(cards).toHaveCount(9);
-    const text = (await cards.allTextContents()).join(' ');
-    expect(text).toContain('10–14 passengers');
-    expect(text).toContain('50–56 passengers');
-  });
-});
 
 test.describe('degrades correctly when the API is unreachable', () => {
   // This is the production reality on a deploy with no VITE_API_URL: the client
@@ -118,21 +125,29 @@ test.describe('the quick-quote widget works', () => {
     await expect(total).toHaveText(/^\$\d/);
   });
 
-  test('caps riders at the selected vehicle class', async ({ page }) => {
-    await page.goto('/');
-    const plus = page.locator('button[aria-label="One more rider"]');
-    const vanValue = await page.locator('#qq-vehicle option', { hasText: 'Van — up to 14' })
-      .first().getAttribute('value');
-    await page.selectOption('#qq-vehicle', vanValue);
-    for (let i = 0; i < 16; i++) await plus.click({ force: true });
-    await expect(plus).toBeDisabled();
+// The rider stepper and the "Van — up to 14" label are both gone: the funnel
+    // publishes no headcounts. Party size is derived from the chosen class by the
+    // booking form and clamped server-side by rideService.clampToVehicleCapacity,
+    // which server/tests/isolation.test.js covers exhaustively. This test pins the
+    // UI half — the widget must still be a working quote, and must not have
+    // regrown a capacity number.
+    test('quotes without publishing any capacity number', async ({ page }) => {
+      await page.goto('/');
+      const select = page.locator('#qq-vehicle');
+      await expect(select).toBeVisible();
 
-    // Switching to a 4-seat class must clamp back down.
-    await page.selectOption('#qq-vehicle', { index: 1 });
-    const riders = page.locator('span.min-w-\\[3\\.5rem\\]');
-    await expect(riders).toHaveText('4');
+      const options = await select.locator('option').allTextContents();
+      expect(options.join(' '), 'a capacity number reappeared in the vehicle list')
+        .not.toMatch(/up to\s+\d+/i);
+      for (const label of options) {
+        expect(label.trim(), 'option label is empty').not.toBe('');
+      }
+
+      // And the rider stepper must not have come back.
+      await expect(page.locator('button[aria-label="One more rider"]')).toHaveCount(0);
+      await expect(page.getByText('Riders', { exact: true })).toHaveCount(0);
+    });
   });
-});
 
 test.describe('accessibility basics', () => {
   test('no horizontal overflow on mobile', async ({ page }) => {

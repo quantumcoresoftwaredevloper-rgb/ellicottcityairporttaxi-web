@@ -297,35 +297,68 @@ Then, in a browser:
 
 Non-negotiable now that the database lives on the box you also rent.
 
-`/usr/local/bin/backup-mongo.sh`:
+**The script is in the repo** — `server/scripts/backup-mongo.sh`. Install it and
+schedule it:
 
 ```bash
-#!/usr/bin/env bash
-set -euo pipefail
-DEST=/var/backups/ellicott
-STAMP=$(date +%F-%H%M)
-mkdir -p "$DEST"
-mongodump --uri="mongodb://ellicott:<password>@127.0.0.1:27017/ellicottaxi" \
-  --archive="$DEST/ellicottaxi-$STAMP.gz" --gzip
-# ship OFFSITE — a backup on the same box is not a backup
-rclone copy "$DEST/ellicottaxi-$STAMP.gz" remote:ellicott-backups/
-find "$DEST" -name 'ellicottaxi-*.gz' -mtime +14 -delete
-```
-
-```bash
-chmod +x /usr/local/bin/backup-mongo.sh
-# crontab -e
+install -m 0755 server/scripts/backup-mongo.sh /usr/local/bin/backup-mongo.sh
+sudo crontab -e   # or: crontab -e as the user that owns /var/backups
 17 3 * * * /usr/local/bin/backup-mongo.sh >> /var/log/ellicott-backup.log 2>&1
 ```
 
-**Restore drill** (do this once, before you need it):
+It reads `MONGO_URI` from `server/.env` when the variable is unset, so it needs
+no credentials in the script itself. **Exit 0 means verified** — a truncated or
+unrestorable archive fails the run rather than being filed as a good backup.
 
-```bash
-mongorestore --uri="mongodb://ellicott:<password>@127.0.0.1:27017/ellicottaxi" \
-  --archive=/var/backups/ellicott/ellicottaxi-YYYY-MM-DD-HHMM.gz --gzip --drop
+| Variable | Default | Notes |
+|----------|---------|-------|
+| `BACKUP_DEST` | `/var/backups/ellicott` | archive directory |
+| `BACKUP_DBNAME` | `ellicottaxi` | name in the filename |
+| `BACKUP_KEEP_DAYS` | `14` | local retention |
+| `BACKUP_REMOTE` | *(empty)* | rclone destination — **set this**, see below |
+| `BACKUP_MIN_BYTES` | `1024` | an archive smaller than this fails the run |
+
+### A local backup is not a backup
+
+With `BACKUP_REMOTE` unset the script prints `offsite copy SKIPPED` on every run.
+It is telling you the archives still only exist on the box that would also be
+destroyed in the outage you are insuring against. Configure rclone and export
+`BACKUP_REMOTE` in the crontab line:
+
+```
+17 3 * * * BACKUP_REMOTE=remote:ellicott-backups/ /usr/local/bin/backup-mongo.sh >> /var/log/ellicott-backup.log 2>&1
 ```
 
-Also back up `/opt/ellicot/server/.env` and the Nginx site config.
+### Restore drill — do this once, before you need it
+
+`server/scripts/restore-mongo.sh` restores into a **throwaway** mongod and proves
+the archive really works. It will not touch production.
+
+```bash
+# 1. spin up a throwaway mongod
+sudo mkdir -p /tmp/mongo-drill-dbpath
+sudo mongod --dbpath /tmp/mongo-drill-dbpath --port 27018 --bind_ip 127.0.0.1 --quiet &
+
+# 2. drill the newest archive into it
+MONGO_URI="mongodb://ellicott:<password>@127.0.0.1:27017/ellicottaxi" \
+  BACKUP_DEST=/var/backups/ellicott \
+  server/scripts/restore-mongo.sh --target-uri "mongodb://127.0.0.1:27018"
+
+# 3. clean up
+sudo pkill -f "mongo-drill-dbpath" && sudo rm -rf /tmp/mongo-drill-dbpath
+```
+
+A real restore replaces the live database and asks you to type its name to
+confirm:
+
+```bash
+MONGO_URI="mongodb://ellicott:<password>@127.0.0.1:27017/ellicottaxi" \
+  BACKUP_DEST=/var/backups/ellicott \
+  server/scripts/restore-mongo.sh --in-place
+```
+
+Also back up `/opt/ellicot/server/.env` and the Nginx site config — a database
+dump does not contain your SMTP password or your `JWT_ACCESS_SECRET`.
 
 ---
 

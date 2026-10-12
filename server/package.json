@@ -13,7 +13,9 @@
     "migrate:drivers": "node src/scripts/verify-existing-drivers.mjs",
     "test": "vitest run",
     "test:watch": "vitest",
-    "refresh:catalog-copy": "node scripts/refresh-catalog-copy.js"
+    "refresh:catalog-copy": "node scripts/refresh-catalog-copy.js",
+    "backup": "bash scripts/backup-mongo.sh",
+    "backup:drill": "bash scripts/restore-mongo.sh"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",

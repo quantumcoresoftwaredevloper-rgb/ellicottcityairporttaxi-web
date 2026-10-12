@@ -39,3 +39,19 @@ process.env.NODE_ENV ||= 'development';
 process.env.RATE_LIMIT_LOGIN ||= '10000';
 process.env.RATE_LIMIT_AUTH ||= '100000';
 process.env.RATE_LIMIT_API ||= '1000000';
+
+// Never send real email from a test run. The suite registers many users, and
+// each registration fires a verification email, so with SMTP configured on the
+// developer's machine it mailed real addresses and then got throttled by
+// Gmail ("454 Too many login attempts"), failing tests that had nothing to do
+// with mail. CI never hit this because it has no `.env` at all — the same
+// luck-not-design trap as above, in the opposite direction.
+//
+// Set to '' rather than deleted: `mailService.js` tests
+// `SMTP_HOST && SMTP_USER`, so empty falls back to logging to the console. And
+// `delete` would not work anyway — `dotenv.config()` backfills any key that is
+// absent, and a key set to '' is already "present" so dotenv leaves it alone.
+process.env.SMTP_HOST = '';
+process.env.SMTP_USER = '';
+process.env.SMTP_PASS = '';
+process.env.SMTP_FROM = '';

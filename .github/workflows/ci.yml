@@ -37,6 +37,13 @@ jobs:
       - name: build
         run: npm run build
         working-directory: client
+      - name: critical-path bundle gate
+        # Must run against the BUILT artefact. The e2e suite drives the Vite dev
+        # server, which emits neither manualChunks nor modulepreload, so it
+        # cannot see this regression — a guard written there passed with the bug
+        # deliberately reintroduced.
+        run: npm run check:bundle
+        working-directory: client
       - name: lint (server)
         run: npm run lint
         working-directory: server

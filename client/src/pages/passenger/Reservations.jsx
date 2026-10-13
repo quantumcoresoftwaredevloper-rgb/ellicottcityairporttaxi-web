@@ -203,8 +203,8 @@ export default function Reservations() {
                 {pickup && (pickup.lat < 38 || pickup.lat > 40 || pickup.lng < -77.5 || pickup.lng > -76)
                   ? `No drivers in ${pickup.address?.slice(0,40)} — Service area is Maryland, DC, VA. Tap "Use my location" when in MD/DL/VA.`
                   : pickup
-                    ? 'No drivers within 50km. They may be offline — use "Use my location" near Ellicott City or try Executive Sedan / Premium SUV.'
-                    : 'Choose a pickup near Ellicott City, MD to find drivers. Service area: Maryland, DC, Virginia.'}
+                    ? 'No drivers within 50km. They may be offline — use "Use my location" near Columbia or try Executive Sedan / Premium SUV.'
+                    : 'Choose a pickup near Columbia, MD to find drivers. Service area: Maryland, DC, Virginia.'}
               </p>
               <p className="mt-1 text-xs text-gold-700">Service area: Maryland, DC, Virginia.</p>
             </div>

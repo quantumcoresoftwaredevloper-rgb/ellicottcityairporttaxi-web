@@ -53,7 +53,7 @@ export default function VerifyEmail() {
             </div>
             <h1 className="text-2xl font-bold">Email verified</h1>
             <p className="mt-2 text-sm text-muted">
-              Your account is active. You can now book rides with Ellicott City Airport Taxi.
+              Your account is active. You can now book rides with Columbia Airport Transportation.
             </p>
             <Link to="/login" className="mt-6 block">
               <Button size="xl" className="w-full">

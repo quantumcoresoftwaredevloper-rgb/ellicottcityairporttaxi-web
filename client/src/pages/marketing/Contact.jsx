@@ -150,7 +150,7 @@ export default function Contact() {
             <div className="card p-8">
               <h3 className="text-base font-bold text-ink">Find us</h3>
               <p className="mt-3 text-sm leading-relaxed text-muted">
-                Based in Ellicott City, Maryland — serving Maryland, DC, and Virginia. Door-to-door,
+                Based in Columbia, Maryland — serving Maryland, DC, and Virginia. Door-to-door,
                 local and long-distance.
               </p>
             </div>

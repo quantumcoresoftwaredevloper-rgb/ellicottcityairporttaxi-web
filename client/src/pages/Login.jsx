@@ -62,7 +62,7 @@ export default function Login() {
       subtitle="Professional chauffeurs, a late-model fleet and door-to-door service across Maryland, DC and Virginia — on your schedule, every single trip."
       footer={
         <>
-          New to Ellicott City Airport Taxi?{' '}
+          New to Columbia Airport Transportation?{' '}
           <Link to="/register" className="font-semibold text-brand-700 hover:underline">
             Create an account
           </Link>

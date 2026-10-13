@@ -20,19 +20,19 @@ export default function AuthLayout({ title, highlight, subtitle, children, foote
         <div className="relative">
           <Link
             to="/"
-            aria-label="Ellicott City Airport Taxi — home"
+            aria-label="Columbia Airport Transportation — home"
             className="inline-block rounded-2xl bg-white p-3 shadow-lg ring-1 ring-black/5"
           >
             <img
               src="/images/logo-full.png"
-              alt="Ellicott City Airport Taxi"
+              alt="Columbia Airport Transportation"
               className="w-36"
               width={527}
               height={344}
             />
           </Link>
           <p className="mt-3 text-[11px] font-medium uppercase tracking-[0.2em] text-white/50">
-            Ellicott City · Maryland
+            Columbia, Maryland
           </p>
         </div>
 
@@ -81,7 +81,7 @@ export default function AuthLayout({ title, highlight, subtitle, children, foote
                 E
               </span>
               <span className="font-display text-base font-bold tracking-tight">
-                Ellicott City <span className="text-gold-600">Airport Taxi</span>
+                Columbia <span className="text-gold-600">Airport Transportation</span>
               </span>
             </Link>
 
@@ -97,7 +97,7 @@ export default function AuthLayout({ title, highlight, subtitle, children, foote
             Secure sign-in · your details stay private
           </p>
           <p className="text-xs text-muted">
-            © {new Date().getFullYear()} Ellicott City Airport Taxi · Maryland · Virginia ·
+            © {new Date().getFullYear()} Columbia Airport Transportation · Maryland · Virginia ·
             Washington DC · Baltimore
           </p>
         </div>

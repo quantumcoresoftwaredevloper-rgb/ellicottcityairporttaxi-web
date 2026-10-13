@@ -70,7 +70,7 @@ export default function About() {
             Easy. Efficient. <span className="text-gold-300">Transparent.</span>
           </h1>
           <p className="mt-5 max-w-2xl text-lg leading-relaxed text-white/80">
-            Offering immaculate customer service and responsiveness, the Ellicott City Airport Taxi team is
+            Offering immaculate customer service and responsiveness, the Columbia Airport Transportation team is
             available and ready to assist you in all your event, business and personal transport
             needs. Priding ourselves on reliability and availability, we are always there to get
             you from Point A to Point B.
@@ -102,7 +102,7 @@ export default function About() {
               A local company that puts people first
             </h2>
             <p className="mt-5 text-base leading-relaxed text-muted">
-              Ellicott City Airport Taxi was founded in Ellicott City, Maryland with a simple
+              Columbia Airport Transportation was founded in Columbia, Maryland with a simple
               belief: getting around
               should be effortless, comfortable and honest. What started as a commitment to
               prompt, professional local rides has grown into a full-service transportation
@@ -127,13 +127,13 @@ export default function About() {
                   <Car className="h-8 w-8 text-white" />
                 </span>
                 <div>
-                  <div className="text-xl font-bold">Ellicott City Airport Taxi</div>
-                  <div className="text-sm text-white/70">Ellicott City, Maryland · Est. 2006</div>
+                  <div className="text-xl font-bold">Columbia Airport Transportation</div>
+                  <div className="text-sm text-white/70">Columbia, Maryland · Est. 2006</div>
                 </div>
               </div>
               <p className="mt-6 text-[15px] leading-relaxed text-white/85">
                 “We do not just move you from A to B — we take care of you the whole way. Reliable,
-                transparent and genuinely personal. That is the Ellicott City Airport Taxi way.”
+                transparent and genuinely personal. That is the Columbia Airport Transportation way.”
               </p>
               <div className="mt-6 flex flex-wrap gap-3">
                 <a
@@ -160,7 +160,7 @@ export default function About() {
               More than just a ride
             </h2>
             <p className="mt-4 text-muted">
-              You have many options when it comes to transportation. With Ellicott City Airport Taxi, we offer an
+              You have many options when it comes to transportation. With Columbia Airport Transportation, we offer an
               unparalleled journey that combines reliability, comfort, personalized service and
               safety.
             </p>
@@ -186,7 +186,7 @@ export default function About() {
       <section className="mx-auto max-w-7xl px-4 py-20 sm:px-6">
         <div className="rounded-3xl bg-brand-gradient px-6 py-14 text-center text-white sm:px-12">
           <h2 className="text-3xl font-bold tracking-tight sm:text-4xl">
-            Choose Ellicott City Airport Taxi for your next journey
+            Choose Columbia Airport Transportation for your next journey
           </h2>
           <p className="mx-auto mt-4 max-w-xl text-[15px] leading-relaxed text-white/80">
             We are dedicated to making every ride exceptional — ensuring you arrive with comfort,

@@ -120,7 +120,7 @@ const sendVerificationEmail = async (user, rawToken) => {
   const link = `${appUrl()}/verify-email?token=${rawToken}`;
   await sendMail({
     to: user.email,
-    subject: 'Verify your email — Ellicott City Airport Taxi',
+    subject: 'Verify your email — Columbia Airport Transportation',
     html: `<p>Hi ${user.name},</p><p>Confirm your email address to finish setting up your account:</p>
       <p><a href="${link}">Verify my email</a></p>
       <p>This link expires in 24 hours. If you didn't create this account, you can ignore this email.</p>`,
@@ -213,7 +213,7 @@ export const forgotPassword = async (email) => {
   const link = `${appUrl()}/reset-password?token=${rawToken}`;
   await sendMail({
     to: user.email,
-    subject: 'Reset your password — Ellicott City Airport Taxi',
+    subject: 'Reset your password — Columbia Airport Transportation',
     html: `<p>Hi ${user.name},</p><p>We received a request to reset your password. Click below to choose a new one:</p>
       <p><a href="${link}">Reset my password</a></p>
       <p>This link expires in 1 hour. If you didn't request this, you can safely ignore this email.</p>`,
@@ -255,7 +255,7 @@ export const sendOtp = async (phone) => {
 
   await sendSms({
     to: phone,
-    body: `Your Ellicott City Airport Taxi verification code is ${code}. It expires in 10 minutes.`,
+    body: `Your Columbia Airport Transportation verification code is ${code}. It expires in 10 minutes.`,
   });
   // Without a working SMS gateway the code is only ever handed back when the
   // operator explicitly opted in — otherwise anyone could claim any phone number.

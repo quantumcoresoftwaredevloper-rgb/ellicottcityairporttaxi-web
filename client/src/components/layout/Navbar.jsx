@@ -116,7 +116,7 @@ export default function Navbar() {
             the wordmark would be ~28px wide and illegible, so the name stays as
             live text beside it. The plate is required because the artwork has a
             dark car and a white ground — on the navy band it would vanish. */}
-        <Link to="/" onClick={closeAll} className="group flex shrink-0 items-center gap-2.5" aria-label="Ellicott City Airport Taxi — home">
+        <Link to="/" onClick={closeAll} className="group flex shrink-0 items-center gap-2.5" aria-label="Columbia Airport Transportation — home">
           <span className="grid h-11 shrink-0 place-items-center rounded-xl bg-white px-2 shadow-sm transition-transform group-hover:scale-[1.03]">
             <img
               src="/images/logo-mark.png"
@@ -129,10 +129,10 @@ export default function Navbar() {
           </span>
           <span className="flex flex-col leading-none">
             <span className="font-display text-[15px] font-semibold tracking-tight text-white sm:text-base">
-              Ellicott City
+              Columbia
             </span>
             <span className="mt-0.5 text-[11px] font-semibold uppercase tracking-[0.14em] text-gold-300">
-              Airport Taxi
+              Airport Transportation
             </span>
           </span>
         </Link>

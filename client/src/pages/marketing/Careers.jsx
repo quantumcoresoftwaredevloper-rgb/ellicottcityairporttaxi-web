@@ -70,7 +70,7 @@ export default function Careers() {
             Careers
           </span>
           <h1 className="mt-6 max-w-3xl text-4xl font-extrabold leading-tight tracking-tight sm:text-5xl">
-            Explore employment at <span className="text-gold-300">Ellicott City Airport Taxi</span>
+            Explore employment at <span className="text-gold-300">Columbia Airport Transportation</span>
           </h1>
           <p className="mt-5 max-w-2xl text-lg leading-relaxed text-white/80">
             Join a growing team of professional drivers who take pride in prompt, courteous and
@@ -89,7 +89,7 @@ export default function Careers() {
             Build your career on the road
           </h2>
           <p className="mt-4 text-muted">
-            We invest in our drivers because they are the face of Ellicott City Airport Taxi.
+            We invest in our drivers because they are the face of Columbia Airport Transportation.
           </p>
         </div>
 
@@ -136,7 +136,7 @@ export default function Careers() {
               <h3 className="text-base font-bold text-ink">Prefer a paper application?</h3>
               <p className="mt-1.5 text-sm text-muted">
                 Download the application, fill it in, and return it to our dispatch office in
-                Ellicott City, MD.
+                Columbia, MD.
               </p>
               <div className="mt-5 flex flex-wrap gap-3">
                 <a

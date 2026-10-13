@@ -57,7 +57,7 @@ export default function CrmShell() {
           <span className="grid h-9 w-9 place-items-center rounded-xl bg-surface text-sm font-bold text-brand-800 shadow-sm">E</span>
           {!collapsed && (
             <div className="min-w-0">
-              <p className="font-display text-[15px] font-bold leading-none tracking-tight">Ellicott City <span className="text-gold-300">Airport Taxi</span></p>
+              <p className="font-display text-[15px] font-bold leading-none tracking-tight">Columbia <span className="text-gold-300">Airport Transportation</span></p>
               <p className="mt-0.5 inline-flex items-center gap-1.5 text-[11px] font-medium tracking-widest text-white/70 uppercase"><span className="h-1.5 w-1.5 animate-pulse rounded-full bg-gold-400" /> CRM • Dispatch</p>
             </div>
           )}
@@ -109,7 +109,7 @@ export default function CrmShell() {
 
       <div className="sticky top-0 z-[1001] flex h-[56px] items-center gap-3 border-b border-accent-200 bg-brand-gradient px-4 text-white shadow-md dark:border-accent-800 lg:hidden">
         <button onClick={() => setMobileOpen(true)} className="grid h-9 w-9 place-items-center rounded-full bg-white/10"><Menu className="h-5 w-5" /></button>
-        <span className="font-display font-bold tracking-tight">Ellicott City <span className="text-gold-300">Airport Taxi</span></span>
+        <span className="font-display font-bold tracking-tight">Columbia <span className="text-gold-300">Airport Transportation</span></span>
         <div className="ml-auto flex items-center gap-1">
           <span className="text-xs text-white/70">CRM</span>
         </div>

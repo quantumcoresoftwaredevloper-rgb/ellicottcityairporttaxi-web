@@ -47,7 +47,7 @@ export default function DriverShell() {
         <div className="pointer-events-none absolute -bottom-10 left-6 h-20 w-20 rounded-full bg-gold-500/15 blur-2xl" />
         <div className="relative flex items-center gap-3">
           <span className="grid h-9 w-9 place-items-center rounded-xl bg-surface text-sm font-bold text-brand-800 shadow-sm">E</span>
-          {!collapsed && <div className="min-w-0"><p className="font-display text-[15px] font-bold leading-none">Ellicott City <span className="text-gold-300">Airport Taxi</span></p><p className="mt-0.5 inline-flex items-center gap-1.5 text-[11px] font-medium tracking-widest text-white/70 uppercase"><span className="h-1.5 w-1.5 animate-pulse rounded-full bg-gold-400" /> Driver • {online ? 'Online' : 'Offline'}</p></div>}
+          {!collapsed && <div className="min-w-0"><p className="font-display text-[15px] font-bold leading-none">Columbia <span className="text-gold-300">Airport Transportation</span></p><p className="mt-0.5 inline-flex items-center gap-1.5 text-[11px] font-medium tracking-widest text-white/70 uppercase"><span className="h-1.5 w-1.5 animate-pulse rounded-full bg-gold-400" /> Driver • {online ? 'Online' : 'Offline'}</p></div>}
           <div className="ml-auto flex items-center gap-1">
             <span className="h-7 w-7 place-items-center rounded-full bg-white/10 text-white">{dark ? '☀' : '☾'}</span>
           </div>
@@ -102,7 +102,7 @@ export default function DriverShell() {
       </aside>
       <div className="sticky top-0 z-[1001] flex h-[56px] items-center gap-3 border-b border-accent-200 bg-brand-gradient px-4 text-white shadow-md lg:hidden">
         <button onClick={() => setMobileOpen(true)} className="grid h-9 w-9 place-items-center rounded-full bg-white/10"><Menu className="h-5 w-5" /></button>
-        <span className="font-display font-bold">Ellicott City <span className="text-gold-300">Driver</span></span>
+        <span className="font-display font-bold">Columbia <span className="text-gold-300">Driver</span></span>
         <div className="ml-auto flex items-center gap-1">
           <span className={`flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold ${online ? 'bg-gold-400 text-ink' : 'bg-white/15 text-white'}`}><span className={`h-2 w-2 rounded-full ${online ? 'bg-ink animate-pulse' : 'bg-white/60'}`} />{online ? 'Online' : 'Offline'}</span>
         </div>

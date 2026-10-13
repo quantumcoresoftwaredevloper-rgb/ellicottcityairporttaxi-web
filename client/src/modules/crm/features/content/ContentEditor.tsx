@@ -277,7 +277,7 @@ export default function ContentEditor() {
               addDisabled={(draft.serviceAreas || []).length >= 30}
               addDisabledReason="30 areas is plenty for one county and its neighbours"
               render={(item: string, update: (v: string) => void) => (
-                <input value={item} onChange={(e) => update(e.target.value)} placeholder="Ellicott City" className={inputCls} />
+                <input value={item} onChange={(e) => update(e.target.value)} placeholder="Columbia" className={inputCls} />
               )}
             />
           </Section>

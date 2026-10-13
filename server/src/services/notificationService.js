@@ -35,7 +35,7 @@ export const notify = async ({ user, type, title, message, data = {}, io }) => {
     sendMail({
       to: recipient.email,
       subject: title,
-      html: `<p>${message || title}</p><p><a href="${appUrl()}">Open Ellicott City Airport Taxi</a></p>`,
+      html: `<p>${message || title}</p><p><a href="${appUrl()}">Open Columbia Airport Transportation</a></p>`,
     }).catch(() => {});
   }
   if (recipient.phone && type !== 'system') {

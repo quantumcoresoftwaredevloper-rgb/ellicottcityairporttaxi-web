@@ -250,13 +250,13 @@ export default function Home() {
         <div className="grid items-center gap-12 lg:grid-cols-2">
           <div>
             <span className="text-xs font-semibold uppercase tracking-widest text-brand-600">
-              Welcome to Ellicott City Airport Taxi
+              Welcome to Columbia Airport Transportation
             </span>
             <h2 className="mt-3 text-3xl font-bold tracking-tight text-ink sm:text-4xl">
               Peace of mind, <span className="text-brand-gradient">every mile</span>
             </h2>
             <p className="mt-5 text-base leading-relaxed text-muted">
-              Ellicott City Airport Taxi delivers professional, reliable and comfortable
+              Columbia Airport Transportation delivers professional, reliable and comfortable
               transportation across
               Maryland, DC, and Virginia for private schools, corporate clients, events, airport
               transfers and
@@ -265,7 +265,7 @@ export default function Home() {
             <p className="mt-4 text-base leading-relaxed text-muted">
               Every driver is professionally trained, licensed and background-checked. Our service
               manager monitors quality continuously and passengers rate every trip, so we can hold
-              the Ellicott City Airport Taxi standard of excellence.
+              the Columbia Airport Transportation standard of excellence.
             </p>
             <ul className="mt-6 space-y-3">
               {['Prompt, efficient, comfortable and safe', 'Clean, modern, well-maintained vehicles', 'Transparent upfront pricing', 'Professional, courteous drivers'].map((item) => (
@@ -370,7 +370,7 @@ export default function Home() {
       <section className="relative overflow-hidden bg-brand-950">
         <img
           src="/images/ececutive-sedan.png"
-          alt="Ellicott City Airport Taxi executive sedan"
+          alt="Columbia Airport Transportation executive sedan"
           className="block w-full"
           loading="lazy"
         />
@@ -478,7 +478,7 @@ export default function Home() {
             We are available across Maryland, DC, and Virginia
           </h2>
           <p className="mt-4 text-muted">
-            Based in Ellicott City, Ellicott City Airport Taxi operates actively in every
+            Based in Columbia, Columbia Airport Transportation operates actively in every
             community across the region — plus BWI, Dulles, Reagan National, Amtrak and MARC
             terminals.
           </p>

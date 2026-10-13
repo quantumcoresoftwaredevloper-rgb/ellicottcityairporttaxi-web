@@ -114,8 +114,8 @@ export default function Privacy() {
   const { content } = useContent();
 
   useEffect(() => {
-    document.title = 'Privacy Policy | Ellicott City Airport Taxi';
-    return () => { document.title = 'Ellicott City Airport Taxi'; };
+    document.title = 'Privacy Policy | Columbia Airport Transportation';
+    return () => { document.title = 'Columbia Airport Transportation'; };
   }, []);
 
   return (
@@ -130,7 +130,7 @@ export default function Privacy() {
             Privacy <span className="text-gold-300">Policy</span>
           </h1>
           <p className="mt-4 max-w-2xl text-base text-white/85">
-            This policy explains what information Ellicott City Airport Taxi collects, why we collect
+            This policy explains what information Columbia Airport Transportation collects, why we collect
             it, and the choices you have. It applies to our website, our Android and iPhone apps, and
             every ride booked through them.
           </p>
@@ -166,7 +166,7 @@ export default function Privacy() {
 
           {/* Business contact — the only party collecting this data. */}
           <section className="card p-6">
-            <h2 className="font-display text-xl font-bold text-ink">Ellicott City Airport Taxi</h2>
+            <h2 className="font-display text-xl font-bold text-ink">Columbia Airport Transportation</h2>
             <address className="mt-3 space-y-1 text-sm not-italic text-muted">
               <p>9019 Early April Way, Ellicott City, MD</p>
               <p>

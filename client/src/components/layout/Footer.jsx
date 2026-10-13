@@ -14,12 +14,12 @@ export default function Footer() {
               cannot sit directly on the navy band — it needs a light plate. */}
           <Link
             to="/"
-            aria-label="Ellicott City Airport Taxi — home"
+            aria-label="Columbia Airport Transportation — home"
             className="inline-block rounded-2xl bg-white p-3 shadow-lg ring-1 ring-black/5"
           >
             <img
               src="/images/logo-full.png"
-              alt="Ellicott City Airport Taxi"
+              alt="Columbia Airport Transportation"
               className="w-40"
               loading="lazy"
               width={527}
@@ -98,7 +98,7 @@ export default function Footer() {
         </div>
       </div>
       <div className="border-t border-white/15 py-4 text-center text-xs text-white/60">
-        © {new Date().getFullYear()} Ellicott City Airport Taxi. All rights reserved. · Ellicott City, Maryland
+        © {new Date().getFullYear()} Columbia Airport Transportation. All rights reserved. · Columbia, Maryland
       </div>
     </footer>
   );

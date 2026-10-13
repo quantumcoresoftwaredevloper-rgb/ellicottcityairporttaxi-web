@@ -8,12 +8,12 @@ import { formatPhoneDisplay } from '../lib/phone.js';
 // server/src/services/contentService.js. They are what renders if the API is
 // slow, blocked or down, so the marketing pages never flash empty text.
 export const CONTENT_FALLBACK = {
-  brandName: 'Ellicott City Airport Taxi',
-  brandLineOne: 'Ellicott City',
-  brandLineTwo: 'Airport Taxi',
+  brandName: 'Columbia Airport Transportation',
+  brandLineOne: 'Columbia',
+  brandLineTwo: 'Airport Transportation',
   tagline: 'Airport transfers and black-car service across Maryland, DC and Virginia.',
-  heroEyebrow: 'Ellicott City, MD · Available 24/7',
-  heroTitle: 'Ellicott City’s premier',
+  heroEyebrow: 'Columbia, MD · Available 24/7',
+  heroTitle: 'Columbia’s premier',
   heroHighlight: 'full-service',
   heroTitleTail: 'transportation provider',
   heroSubtitle:
@@ -28,7 +28,7 @@ export const CONTENT_FALLBACK = {
   aboutTitle: 'Built on punctuality',
   aboutHighlight: 'and trust',
   aboutBody:
-    'Ellicott City Airport Taxi has spent years making Howard County feel smaller. From BWI runs at dawn to black-car service for corporate accounts, every trip is handled by a professional driver who knows the region — and prices quoted upfront, before you book.',
+    'Columbia Airport Transportation has spent years making Howard County feel smaller. From BWI runs at dawn to black-car service for corporate accounts, every trip is handled by a professional driver who knows the region — and prices quoted upfront, before you book.',
   stats: [
     { value: '24/7', label: 'Service, every day' },
     { value: '18+', label: 'Communities served' },
@@ -40,19 +40,19 @@ export const CONTENT_FALLBACK = {
       quote:
         'Picked me up at BWI at 4:30am, drove the whole way professionally, and the fare was exactly what I saw on the app. Flawless.',
       name: 'Danielle R.',
-      detail: 'Ellicott City, MD · Airport transfer',
+      detail: 'Columbia, MD · Airport transfer',
     },
     {
       quote:
         'We booked a sedan for our wedding party of six. The drivers were early, immaculate, and so kind. Could not have asked for a smoother day.',
       name: 'Marcus & Priya',
-      detail: 'Ellicott City, MD · Wedding',
+      detail: 'Columbia, MD · Wedding',
     },
     {
       quote:
-        'I use Ellicott City Airport Taxi every week for the commute to the office. Reliable, clean cars and the same great driver most mornings.',
+        'I use Columbia Airport Transportation every week for the commute to the office. Reliable, clean cars and the same great driver most mornings.',
       name: 'Jennifer W.',
-      detail: 'Ellicott City, MD · Corporate account',
+      detail: 'Columbia, MD · Corporate account',
     },
   ],
   serviceAreas: [

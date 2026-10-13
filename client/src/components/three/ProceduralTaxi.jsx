@@ -94,7 +94,7 @@ function makeDecalTexture(flip = false) {
   ctx.shadowBlur = 10;
   ctx.fillStyle = '#ffffff';
   ctx.font = '700 58px Raleway, system-ui, sans-serif';
-  ctx.fillText('Ellicott City', 256, 62);
+  ctx.fillText('Columbia', 256, 62);
   ctx.shadowBlur = 5;
   ctx.font = '600 30px Raleway, system-ui, sans-serif';
   ctx.fillStyle = '#e6e6e8';

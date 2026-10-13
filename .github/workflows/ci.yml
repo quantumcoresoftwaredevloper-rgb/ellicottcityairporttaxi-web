@@ -162,6 +162,49 @@ jobs:
             client/dist/ \
             /var/www/ellicottcityairporttaxi.com/
 
+  # Second public domain for the same app: columbiaairporttransportation.com.
+  #
+  # It was previously a hand-uploaded copy of the build that drifted — it kept
+  # serving an old bundle while the Ellicott site moved on, and nothing would
+  # ever have updated it again. This job makes that impossible.
+  #
+  # SAME-ORIGIN, unlike deploy-frontend. That is deliberate: this build has no
+  # VITE_API_URL, so the client calls /api on whatever host it was loaded from and
+  # nginx proxies it to :5001. Nothing cross-origin is involved, so no CORS
+  # change is needed for this domain. Do not add VITE_API_URL here — baking the
+  # API host in would make every user of this domain depend on the API's CORS
+  # allowlist naming it, and that failure is invisible until someone clicks
+  # "Sign in".
+  deploy-frontend-alt:
+    name: Deploy frontend to Columbia domain
+    runs-on: self-hosted
+    needs: gates
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - uses: actions/checkout@v4
+      - run: npm ci
+        working-directory: client
+      - name: Build frontend (same-origin)
+        working-directory: client
+        # Explicitly empty rather than unset, so a stray repository or runner
+        # variable cannot silently flip this build back to cross-origin.
+        env:
+          VITE_API_URL: ''
+        run: npm run build
+      - name: Deploy frontend
+        run: |
+          sudo mkdir -p /var/www/columbiaairporttransportation.com
+          sudo rsync -az --delete \
+            --exclude '.well-known' \
+            --exclude 'googlebffcbf76070b0706.html' \
+            client/dist/ \
+            /var/www/columbiaairporttransportation.com/
+          # Fail the job loudly rather than leaving a half-updated document root
+          # that nginx would keep serving. `index.html` is the SPA entrypoint;
+          # if it is missing, the site is a blank page.
+          sudo test -f /var/www/columbiaairporttransportation.com/index.html \
+            || { echo "::error::index.html missing after deploy — site is broken"; exit 1; }
+
   deploy-backend:
     name: Deploy backend to VPS
     runs-on: self-hosted
